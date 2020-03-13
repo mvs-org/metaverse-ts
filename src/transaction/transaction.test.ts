@@ -16,4 +16,16 @@ describe('Transaction', function () {
     })
   })
 
-});
+  describe('Encoding', () => {
+    const transaction = Transaction.decode(Buffer.from(etpTx, 'hex'))
+    it('Decode ETP Transfer', () => {
+      const txObject = transaction.toJSON()
+      chai.expect(txObject.inputs.length).to.equal(2)
+      chai.expect(txObject.outputs.length).to.equal(2)
+    })
+    it('Prepare signature hash', () => {
+      chai.expect(transaction.prepare(0)).to.equal('edc0fcc62298971afcab5cba1531bec7ab077e3328316edc29d5c59eee59278a')
+    })
+  })
+
+})

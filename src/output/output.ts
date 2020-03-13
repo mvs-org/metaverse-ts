@@ -1,6 +1,6 @@
 import { Script, ScriptP2PKH } from '../script/script'
 import { IAttachment, AttachmentETPTransfer, Attachment } from '../attachment/attachment';
-import { readString, toUInt64LE, fromInt64LE, toVarInt } from '../encoder/encoder';
+import { readString, toUInt64LE, readInt64LE, toVarInt } from '../encoder/encoder';
 
 export interface IOutput {
     value: number
@@ -42,7 +42,7 @@ export class Output implements IOutput {
     }
 
     static decode(bufferstate: { buffer: Buffer, offset: number }) {
-        const value = fromInt64LE(bufferstate)
+        const value = readInt64LE(bufferstate)
         const script = Script.toASM(readString(bufferstate))
         
         const attachment = Attachment.decode(bufferstate)

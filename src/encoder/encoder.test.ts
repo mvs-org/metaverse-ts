@@ -1,5 +1,5 @@
 import { expect, } from 'chai'
-import { verifuint, toUInt8, fromInt64LE, toUInt64LE } from './encoder';
+import { verifuint, toUInt8, readInt64LE, toUInt64LE } from './encoder';
 
 
 describe('Encoder', () => {
@@ -30,8 +30,8 @@ describe('Encoder', () => {
 
   describe('fromInt64LE', ()=>{
     it('valid range', ()=>{
-      expect(fromInt64LE({buffer: Buffer.from('0100000000000000', 'hex'), offset: 0})).equal(1)
-      expect(()=>fromInt64LE({buffer: Buffer.from('01000000', 'hex'), offset: 0})).to.throw(RangeError)
+      expect(readInt64LE({buffer: Buffer.from('0100000000000000', 'hex'), offset: 0})).equal(1)
+      expect(()=>readInt64LE({buffer: Buffer.from('01000000', 'hex'), offset: 0})).to.throw(RangeError)
     })
   })
 

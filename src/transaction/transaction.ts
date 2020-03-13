@@ -62,7 +62,7 @@ export class Transaction implements IEncodable {
         return {
             version: this.version,
             inputs: this.inputs.map(input=>input.toJSON()),
-            output: this.outputs.map(output=>output.toJSON()),
+            outputs: this.outputs.map(output=>output.toJSON()),
             lock_time: this.lock_time,
         }
     }

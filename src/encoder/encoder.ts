@@ -25,7 +25,7 @@ export function toUInt8(number: number): Buffer {
     return buffer.slice(0, buffer.writeUInt8(number, 0));
 }
 
-export function fromInt64LE(bufferstate: {buffer: Buffer, offset: number}): number {
+export function readInt64LE(bufferstate: {buffer: Buffer, offset: number}): number {
     var a = bufferstate.buffer.readUInt32LE(bufferstate.offset)
     var b = bufferstate.buffer.readUInt32LE(bufferstate.offset+4)
     b *= 0x100000000
