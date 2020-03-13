@@ -32,7 +32,7 @@ export class Transaction implements IEncodable {
 
     prepare(inputIndex: number) {
         const tmp = Object.create(this)
-        tmp.inputs = tmp.inputs.map((input: IInput, inputIndex: number) => (inputIndex === inputIndex) ? input : input.clearScript())
+        tmp.inputs = tmp.inputs.map((input: IInput, index: number) => (index === inputIndex) ? input : input.clearScript())
         return tmp.getId()
     }
 

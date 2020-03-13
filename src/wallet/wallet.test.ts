@@ -16,6 +16,7 @@ describe('Wallet', function () {
       chai.expect(wallet.toBase58()).to.equal('xprv9s21ZrQH143K2nA5pap1jF84AHeh5tRRcGuCJc5X8k4FWELPo7QCdS85LjYXsn8EnFyQevdwagW3uVC3LHSpc9HQUBSWRDvqu8jDsvTEMDy')
     })
     it('Get path base58', () => {
+      chai.expect(wallet.toBase58(0)).to.equal(wallet.toBase58('m/0'))
       chai.expect(wallet.toBase58('m/0/1')).to.equal('xprv9wietYDeSbFubirNXdjrz44qtHUkQUG9jxobeVLTfrAZQAoM1FwuRmPKyDSLBqtAXuuuPdqrGZjegx3Fwa9bD124VwfCZtDpvEJe4VmnPpB')
     })
     it('From base58', () => {
@@ -48,6 +49,7 @@ describe('Wallet', function () {
       chai.expect(HDWallet.validateMnemonic('lunar there win define minor shadow damage lounge bitter abstract sail alcohol yellow left lift vapor tourist rent gloom sustain gym dry congress zero')).to.be.true
       chai.expect(HDWallet.validateMnemonic('test test test')).to.be.false
       chai.expect(HDWallet.validateMnemonic('there lunar win define minor shadow damage lounge bitter abstract sail alcohol yellow left lift vapor tourist rent gloom sustain gym dry congress zero')).to.be.false
+      chai.expect(() => HDWallet.validateMnemonic('test test test', true)).to.throw('Invalid mnemonic')
     })
   })
 

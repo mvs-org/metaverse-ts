@@ -40,7 +40,7 @@ export abstract class Script implements IScript {
         return Buffer.from('')
     }
 
-    fromFullnode(script: string) {
+    static fromFullnode(script: string) {
         return Script.fromASM(fullnodeFormat(script))
     }
 

@@ -24,7 +24,8 @@ describe('Transaction', function () {
       chai.expect(txObject.outputs.length).to.equal(2)
     })
     it('Prepare signature hash', () => {
-      chai.expect(transaction.prepare(0)).to.equal('edc0fcc62298971afcab5cba1531bec7ab077e3328316edc29d5c59eee59278a')
+      chai.expect(transaction.prepare(0)).to.equal('2cb8343f983a40c384a68c8670803e4da29b427352bc72e684e1b067557fea0e')
+      chai.expect(transaction.prepare(1)).to.equal('62faa4099b6a835a9e65085e0c39eedd7f3b9f961455c9b1dc9209ac964ca97e')
     })
   })
 
