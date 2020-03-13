@@ -91,5 +91,3 @@ export class Transaction implements IEncodable {
     }
 
 }
-
-export default Transaction
