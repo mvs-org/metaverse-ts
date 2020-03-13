@@ -9,7 +9,8 @@ before(() => {
 
 describe('Wallet', function () {
 
-  const wallet = HDWallet.fromMnemonic('lunar there win define minor shadow damage lounge bitter abstract sail alcohol yellow left lift vapor tourist rent gloom sustain gym dry congress zero', 'mainnet')
+  const mnemonic = 'lunar there win define minor shadow damage lounge bitter abstract sail alcohol yellow left lift vapor tourist rent gloom sustain gym dry congress zero'
+  const wallet = HDWallet.fromMnemonic(mnemonic, 'mainnet')
   describe('base58', () => {
     it('Get root base58', () => {
       chai.expect(wallet.toBase58()).to.equal('xprv9s21ZrQH143K2nA5pap1jF84AHeh5tRRcGuCJc5X8k4FWELPo7QCdS85LjYXsn8EnFyQevdwagW3uVC3LHSpc9HQUBSWRDvqu8jDsvTEMDy')
@@ -34,6 +35,19 @@ describe('Wallet', function () {
     })
     it('Generate address from path', () => {
       chai.expect(wallet.getAddress('m/0/0')).to.equal('MPhbC3FB4RHHYX3ZEcFRhfzgfs7g9Z9Rjc')
+    })
+  })
+  describe('Mnemonic', () => {
+    it('Generate', () => {
+      const mnemonic = HDWallet.generateMnemonic()
+      chai.expect(mnemonic.split(' ').length).to.equal(24)
+      chai.expect(HDWallet.validateMnemonic(mnemonic)).to.be.true
+    })
+    it('Validate', () => {
+      chai.expect(HDWallet.validateMnemonic('liberty high shrug defy inject file uphold purpose method science have plunge clap soon acquire opera siege kind erosion much jaguar room knee divide')).to.be.true
+      chai.expect(HDWallet.validateMnemonic('lunar there win define minor shadow damage lounge bitter abstract sail alcohol yellow left lift vapor tourist rent gloom sustain gym dry congress zero')).to.be.true
+      chai.expect(HDWallet.validateMnemonic('test test test')).to.be.false
+      chai.expect(HDWallet.validateMnemonic('there lunar win define minor shadow damage lounge bitter abstract sail alcohol yellow left lift vapor tourist rent gloom sustain gym dry congress zero')).to.be.false
     })
   })
 

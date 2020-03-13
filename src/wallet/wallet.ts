@@ -1,5 +1,5 @@
 import { bip32, payments, Network, } from 'bitcoinjs-lib'
-import { mnemonicToSeedSync, validateMnemonic } from 'bip39'
+import { mnemonicToSeedSync, validateMnemonic, generateMnemonic, wordlists } from 'bip39'
 import { getNetwork } from '../network/network'
 
 export const DEFAULT_PATH = '0'
@@ -22,12 +22,12 @@ export class HDWallet {
         if (typeof path === 'number') {
             path = String(path)
         }
-        if(path===undefined) return this.rootNode.toBase58()
+        if (path === undefined) return this.rootNode.toBase58()
         return this.rootNode.derivePath(path).toBase58()
     }
 
     getWIF(path?: string) {
-        if(path===undefined) return this.rootNode.toWIF() 
+        if (path === undefined) return this.rootNode.toWIF()
         return this.rootNode.derivePath(path).toWIF()
     }
 
@@ -40,8 +40,12 @@ export class HDWallet {
         return new HDWallet(bip32.fromSeed(mnemonicToSeedSync(mnemonic)), getNetwork(network))
     }
 
-    static validateMnemonic(mnemonic: string, throwOnError=false){
-        if(throwOnError && !validateMnemonic(mnemonic)){
+    static generateMnemonic(strength = 256, language = 'en', rng?: (size: number) => Buffer): string {
+        return generateMnemonic(strength, rng, wordlists[language])
+    }
+
+    static validateMnemonic(mnemonic: string, throwOnError = false) {
+        if (throwOnError && !validateMnemonic(mnemonic)) {
             throw Error('Invalid mnemonic')
         }
         return validateMnemonic(mnemonic)
