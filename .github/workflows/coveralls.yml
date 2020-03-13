@@ -16,10 +16,10 @@ jobs:
       with:
         node-version: 10.x
 
-    - name: npm install, make test-coverage
+    - name: npm install, execute coveralls
       run: |
         npm install
-        make test-coverage
+        npm run coveralls
 
     - name: Coveralls
       uses: coverallsapp/github-action@master
