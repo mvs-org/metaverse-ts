@@ -29,7 +29,8 @@ export const Networks = {
 
 export const DEFAULT_NETWORK = Networks.mainnet
 
-export function getNetwork(network?: Network | string){
-    if(typeof network==='string' || network===undefined) return network === 'testnet' ? Networks[network] : DEFAULT_NETWORK
+export function getNetwork(network?: Network | string) {
+    if (typeof network === 'string') return network === 'testnet' ? Networks[network] : Networks['mainnet']
+    else if(network === undefined) return DEFAULT_NETWORK
     return network
 }

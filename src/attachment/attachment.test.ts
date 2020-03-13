@@ -1,5 +1,5 @@
 import { expect, } from 'chai'
-import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer } from './attachment';
+import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, ATTACHMENT_VERSION_DID, ATTACHMENT_TYPE_ETP_TRANSFER } from './attachment';
 
 describe('Attachment', () => {
 
@@ -7,7 +7,7 @@ describe('Attachment', () => {
     class TestAttachment extends Attachment { }
     const attachment = new TestAttachment(100, 5)
     it('transform to buffer', () => {
-      expect(attachment.toBuffer().toString('hex')).equal('');
+      expect(attachment.toBuffer().toString('hex')).equal('0500000064000000');
     })
     it('transform to json', () => {
       expect(attachment.toJSON()).equal(attachment);
@@ -17,7 +17,7 @@ describe('Attachment', () => {
       expect(attachment.from_did).equal('testfrom');
     })
     it('detect illegal attachment type', () => {
-      expect(()=>Attachment.fromBuffer(Buffer.from('0100000099000000', 'hex'))).to.throw('Unsupported attachment type');
+      expect(() => Attachment.fromBuffer(Buffer.from('0100000099000000', 'hex'))).to.throw('Unsupported attachment type');
     })
 
   })
@@ -40,7 +40,7 @@ describe('Attachment', () => {
     it('transform to json', () => {
       expect(attachment.toJSON()).to.deep.equal({ type: 3, version: 1, data: 'hello' });
     })
-    it('decode from buffer', ()=>{
+    it('decode from buffer', () => {
       expect(Attachment.fromBuffer(Buffer.from('01000000030000000568656c6c6f', 'hex'))).to.deep.equal({ type: 3, version: 1, data: 'hello' })
     })
   })
@@ -56,6 +56,7 @@ describe('Attachment', () => {
       hug.symbol,
       hug.quantity,
     )
+    
     it('transform to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal('010000000200000002000000074d56532e4855470200000000000000');
     })
@@ -64,6 +65,41 @@ describe('Attachment', () => {
     })
     it('decode from buffer', () => {
       expect(Attachment.fromBuffer(Buffer.from('010000000200000002000000074d56532e4855470200000000000000', 'hex'))).to.deep.equal(hug)
+    })
+  })
+
+  describe('Did Attachment', ()=>{
+    it('encode did', ()=>{
+      class TestAttachment extends Attachment { }
+
+      expect(new TestAttachment(1).setDid('foo').encodeDid().toString('hex')).equal('0003666f6f')
+      expect(new TestAttachment(1,1).setDid('foo', 'bar').encodeDid().toString('hex')).equal('0362617203666f6f')
+      expect(new TestAttachment(1,1).setDid(undefined, 'foo').encodeDid().toString('hex')).equal('03666f6f00')
+      expect(new TestAttachment(1,1).encodeDid().toString('hex')).equal('')
+    })
+    it('did enabled etp transfer', () => {
+      const attachment = new AttachmentETPTransfer(
+        2,
+      ).setDid('foo', 'bar')
+      expect(attachment.toBuffer().toString('hex')).equal('cf000000000000000362617203666f6f')
+      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617203666f6f','hex')).toJSON()).deep.equal({
+        to_did: 'foo',
+        from_did: 'bar',
+        type: ATTACHMENT_TYPE_ETP_TRANSFER,
+        version: ATTACHMENT_VERSION_DID,
+      })
+      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000003626172','hex')).toJSON()).deep.equal({
+        from_did: '',
+        to_did: 'bar',
+        type: ATTACHMENT_TYPE_ETP_TRANSFER,
+        version: ATTACHMENT_VERSION_DID,
+      })
+      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617200','hex')).toJSON()).deep.equal({
+        from_did: 'bar',
+        to_did: '',
+        type: ATTACHMENT_TYPE_ETP_TRANSFER,
+        version: ATTACHMENT_VERSION_DID,
+      })
     })
   })
 

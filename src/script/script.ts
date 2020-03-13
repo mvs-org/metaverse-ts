@@ -76,6 +76,7 @@ export abstract class Script implements IScript {
     }
 
     static fromASM(asm: string) {
+        if(asm.length==0) return Buffer.from('')
         let level = 0
         let chunks: Buffer[] = []
         asm.split(' ').forEach(chunkStr => {

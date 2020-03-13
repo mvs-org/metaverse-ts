@@ -25,6 +25,10 @@ export class Input implements IInput {
         }
     }
 
+    static fromBuffer(buffer: Buffer){
+        return Input.decode({buffer, offset: 0})
+    }
+
     static decode(bufferstate: { buffer: Buffer, offset: number }) {
         const prevId = readSlice(bufferstate, 32).reverse().toString('hex')
         const prevIndex = readUInt32LE(bufferstate)

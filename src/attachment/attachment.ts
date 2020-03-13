@@ -28,38 +28,49 @@ export abstract class Attachment implements IAttachment {
         this.version = version
     }
     toBuffer() {
+        return Buffer.concat([
+            toUInt32LE(this.version),
+            toUInt32LE(this.type),
+            this.encodeDid(),
+        ])
+    }
+    encodeDid(): Buffer {
+        if (this.version === ATTACHMENT_VERSION_DID) {
+            return Buffer.concat([
+                toVarStr(this.to_did || ''),
+                toVarStr(this.from_did || ''),
+            ])
+        }
         return Buffer.from('')
     }
     toJSON() {
         return this
     }
-    setDid(from: string, to: string) {
+    setDid(from?: string, to?: string) {
+        this.version = ATTACHMENT_VERSION_DID
         this.from_did = from
         this.to_did = to
         return this
     }
-    static fromBuffer(buffer: Buffer){
-        return Attachment.decode({buffer, offset: 0})
+    static fromBuffer(buffer: Buffer) {
+        return Attachment.decode({ buffer, offset: 0 })
     }
     static decode(bufferstate: { buffer: Buffer, offset: number }) {
         const version = readUInt32LE(bufferstate)
         const type = readUInt32LE(bufferstate)
-
+        const did = (version === ATTACHMENT_VERSION_DID) ? {
+            from_did: readString(bufferstate).toString(),
+            to_did: readString(bufferstate).toString()
+        } : undefined
         let attachment
 
         switch (type) {
             case ATTACHMENT_TYPE_ETP_TRANSFER:
                 attachment = new AttachmentETPTransfer(version)
-                if (version === ATTACHMENT_VERSION_DID) {
-                    attachment.setDid(readString(bufferstate).toString(), readString(bufferstate).toString())
-                }
                 break
             case ATTACHMENT_TYPE_MESSAGE:
                 const data = readString(bufferstate)
                 attachment = new AttachmentMessage(data.toString(), version)
-                if (version === ATTACHMENT_VERSION_DID) {
-                    attachment.setDid(readString(bufferstate).toString(), readString(bufferstate).toString())
-                }
                 break
             case ATTACHMENT_TYPE_MST:
                 const mstStatus = readUInt32LE(bufferstate)
@@ -91,6 +102,9 @@ export abstract class Attachment implements IAttachment {
                 }
         }
         if (attachment === undefined) throw Error('Unsupported attachment type')
+        if (did !== undefined) {
+            attachment.setDid(did.from_did, did.to_did)
+        }
         return attachment
     }
 }
@@ -98,15 +112,6 @@ export abstract class Attachment implements IAttachment {
 export class AttachmentETPTransfer extends Attachment implements IAttachment {
     constructor(version = ATTACHMENT_VERSION_DEFAULT) {
         super(ATTACHMENT_TYPE_ETP_TRANSFER, version)
-    }
-    toJSON() {
-        return this
-    }
-    toBuffer() {
-        return Buffer.concat([
-            toUInt32LE(this.version),
-            toUInt32LE(this.type),
-        ])
     }
 }
 
@@ -116,8 +121,7 @@ export class AttachmentMessage extends Attachment {
     }
     toBuffer() {
         return Buffer.concat([
-            toUInt32LE(this.version),
-            toUInt32LE(this.type),
+            super.toBuffer(),
             toVarStr(this.data)
         ])
     }
@@ -129,8 +133,7 @@ export class AttachmentMSTIssue extends Attachment {
     }
     toBuffer() {
         return Buffer.concat([
-            toUInt32LE(this.version),
-            toUInt32LE(this.type),
+            super.toBuffer(),
             toUInt32LE(MST_STATUS_ISSUE),
             toVarStr(this.symbol),
             toUInt64LE(this.maxSupply),
@@ -149,12 +152,12 @@ export class AttachmentMSTTransfer extends Attachment {
         super(ATTACHMENT_TYPE_MST, version)
     }
     toBuffer() {
-        return Buffer.concat([
-            toUInt32LE(this.version),
-            toUInt32LE(this.type),
-            toUInt32LE(MST_STATUS_TRANSFER),
-            toVarStr(this.symbol),
-            toUInt64LE(this.quantity),
-        ])
+        return Buffer.concat(
+            [
+                super.toBuffer(),
+                toUInt32LE(MST_STATUS_TRANSFER),
+                toVarStr(this.symbol),
+                toUInt64LE(this.quantity),
+            ])
     }
 }
