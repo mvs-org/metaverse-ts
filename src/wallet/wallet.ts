@@ -40,7 +40,7 @@ export class HDWallet {
         return new HDWallet(bip32.fromSeed(mnemonicToSeedSync(mnemonic)), getNetwork(network))
     }
 
-    static generateMnemonic(strength = 256, language = 'en', rng?: (size: number) => Buffer): string {
+    static generateMnemonic(language = 'en', strength = 256, rng?: (size: number) => Buffer): string {
         return generateMnemonic(strength, rng, wordlists[language])
     }
 
