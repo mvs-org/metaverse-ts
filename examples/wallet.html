@@ -1,0 +1,35 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document</title>
+    <script src="/lib/metaverse.browser.js"></script>
+</head>
+
+<body>
+    <div id="error" style="color: red"></div>
+    <div id="result"></div>
+    <label for="mnemonic">Mnemonic</label>
+    <input type="text" id="mnemonic" value="">
+    <label for="path">Path</label>
+    <input type="text" id="path" value="m/0">
+    <button onclick="getAddress(document.getElementById('mnemonic').value, document.getElementById('path').value)">Get Address</button>
+    <script>
+        function getAddress(mnemonic, path){
+            document.getElementById('error').textContent = ''
+            document.getElementById('result').textContent = ''
+            try{
+                const wallet = Metaverse.HDWallet.fromMnemonic(mnemonic)
+                const address = wallet.getAddress(path)
+                document.getElementById('result').textContent = address
+
+            } catch (error){
+                document.getElementById('error').textContent = error.message
+            }
+        }
+    </script>
+</body>
+
+</html>
