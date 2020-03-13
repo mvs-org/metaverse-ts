@@ -13,6 +13,10 @@
     "pushdata-bitcoin": "^1.0.1",
     "varuint-bitcoin": "^1.1.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvs-org/metaverse-ts.git"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.10",
     "@types/chai-as-promised": "^7.1.2",
