@@ -23,9 +23,13 @@ describe('Transaction', function () {
       chai.expect(txObject.inputs.length).to.equal(2)
       chai.expect(txObject.outputs.length).to.equal(2)
     })
+    it('Endode ETP Transfer as string', () => {
+      chai.expect(transaction.toString()).to.equal(etpTx)
+    })
+
     it('Prepare signature hash', () => {
-      chai.expect(transaction.prepare(0)).to.equal('2cb8343f983a40c384a68c8670803e4da29b427352bc72e684e1b067557fea0e')
-      chai.expect(transaction.prepare(1)).to.equal('62faa4099b6a835a9e65085e0c39eedd7f3b9f961455c9b1dc9209ac964ca97e')
+      chai.expect(transaction.getSigHash(0, 'dup hash160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] equalverify checksig')).to.equal('c1995f1d1edf9255b70680933f117150ce4712541b5084e13504bc3d043f346d')
+      chai.expect(transaction.getSigHash(1, Buffer.from('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac', 'hex'))).to.equal('df61acf979b70be8cbb5661170d50b68ae073ba9b9d32754e084c1a8aeef514b')
     })
   })
 

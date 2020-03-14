@@ -16,7 +16,7 @@ export class Output implements IOutput {
         this.value = value
         this.attachment = attachment
         if (typeof script === 'string') {
-            this.script = Script.fromASM(script)
+            this.script = Script.toBuffer(script)
         } else if (Buffer.isBuffer(script)) {
             this.script = script
         } else {
@@ -27,9 +27,13 @@ export class Output implements IOutput {
     toJSON() {
         return {
             value: this.value,
-            script: Script.toASM(this.script),
+            script: Script.toString(this.script),
             attachment: this.attachment
         }
+    }
+
+    toString(){
+        return this.toBuffer().toString('hex')
     }
 
     toBuffer() {
@@ -41,9 +45,13 @@ export class Output implements IOutput {
         ])
     }
 
+    static fromBuffer(buffer: Buffer){
+        return Output.decode({buffer, offset: 0})
+    }
+
     static decode(bufferstate: { buffer: Buffer, offset: number }) {
         const value = readInt64LE(bufferstate)
-        const script = Script.toASM(readString(bufferstate))
+        const script = Script.toString(readString(bufferstate))
         
         const attachment = Attachment.decode(bufferstate)
         return new Output(value, attachment, script)

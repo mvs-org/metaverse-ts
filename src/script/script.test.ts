@@ -10,16 +10,20 @@ describe('Script', () => {
     })
 
     it('fromASM', () => {
-      expect(Script.fromASM('dup hash160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] equalverify checksig').toString('hex')).equal('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac')
-      expect(Script.fromASM('OP_DUP OP_HASH160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] OP_EQUALVERIFY OP_CHECKSIG').toString('hex')).equal('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac')
+      expect(Script.toBuffer('dup hash160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] equalverify checksig').toString('hex')).equal('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac')
+      expect(Script.toBuffer('OP_DUP OP_HASH160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] OP_EQUALVERIFY OP_CHECKSIG').toString('hex')).equal('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac')
     })
 
     it('Unknown OP code detection', () => {
-      expect(()=>Script.fromASM('dup hash166 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] equalverify checksig').toString('hex')).to.throw('Unknown OP code')
+      expect(()=>Script.toBuffer('dup hash166 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] equalverify checksig').toString('hex')).to.throw('Unknown OP code')
     })
 
     it('toASM', () => {
-      expect(Script.toASM(Buffer.from('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac', 'hex'))).equal('OP_DUP OP_HASH160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] OP_EQUALVERIFY OP_CHECKSIG')
+      expect(Script.toString(Buffer.from('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac', 'hex'))).equal('OP_DUP OP_HASH160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] OP_EQUALVERIFY OP_CHECKSIG')
+    })
+
+    it('pushdata read too much data', ()=>{
+      expect(Script.splitBuffer(Buffer.from('4B800', 'hex'))).is.empty
     })
 
   })

@@ -34,6 +34,9 @@ export abstract class Attachment implements IAttachment {
             this.encodeDid(),
         ])
     }
+    toString(){
+        return this.toBuffer().toString('hex')
+    }
     encodeDid(): Buffer {
         if (this.version === ATTACHMENT_VERSION_DID) {
             return Buffer.concat([

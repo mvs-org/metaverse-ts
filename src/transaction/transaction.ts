@@ -1,6 +1,7 @@
 import { Output, IOutput } from '../output/output';
 import { IInput, Input } from '../input/input';
 import { IEncodable, toUInt32LE, hash256FromBuffer, toVarInt, readVarInt } from '../encoder/encoder';
+import { Script } from '../script/script';
 
 export interface ITransaction {
     version: number
@@ -26,13 +27,23 @@ export class Transaction implements IEncodable {
         ]);
     }
 
+    toString() {
+        return this.toBuffer().toString('hex')
+    }
+
     getId() {
         return hash256FromBuffer(this.toBuffer()).reverse().toString('hex')
     }
 
-    prepare(inputIndex: number) {
+    getSigHash(inputIndex: number, prevOutScript: Buffer | string, type = 0x00) {
         const tmp = Object.create(this)
-        tmp.inputs = tmp.inputs.map((input: IInput, index: number) => (index === inputIndex) ? input : input.clearScript())
+        tmp.inputs = tmp.inputs.map((input: IInput, index: number) => {
+            if(index !== inputIndex){
+                return input.clearScript()
+            }
+            input.script = typeof prevOutScript === 'string' ? Script.toBuffer(prevOutScript) : prevOutScript
+            return input
+        })
         return tmp.getId()
     }
 

@@ -4,6 +4,19 @@ import { AttachmentETPTransfer } from '../attachment/attachment'
 
 describe('Output', () => {
 
+  describe('Decode', () => {
+    it('from buffer', () => {
+      expect(Output.fromBuffer(Buffer.from('00e1f505000000001a1976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac0100000000000000', 'hex')).toJSON()).deep.equal({
+          attachment: {
+            type: 0,
+            version: 1,
+          },
+          script: "[ 76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac ]",
+          value: 100000000,
+        })
+    })
+  })
+
   describe('Encode', () => {
     const output = new OutputETPTransfer('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve', 100000000)
     const outputBufferScript = new Output(100000000, new AttachmentETPTransfer(), Buffer.from('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac', 'hex'))
@@ -23,6 +36,7 @@ describe('Output', () => {
       })
     })
     it('output with script buffer', () => {
+      expect(outputBufferScript.toString()).equal('00e1f505000000001976a914e7da370944c15306b3809580110b0a6c653ac5a988ac0100000000000000');
       expect(outputBufferScript.toBuffer().toString('hex')).equal('00e1f505000000001976a914e7da370944c15306b3809580110b0a6c653ac5a988ac0100000000000000');
     })
   })

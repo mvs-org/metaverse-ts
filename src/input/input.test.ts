@@ -26,6 +26,7 @@ describe('Input', () => {
     it('input with sequence', ()=>{
       const sequenceInput = new Input('2ce5f8d7610424a5180f8d7b3038b019d2e7bc4adfa008206dc8b5a898d676b8', 0, '', 1000)
       const buffer = sequenceInput.toBuffer()
+      expect(sequenceInput.toString()).to.equal('b876d698a8b5c86d2008a0df4abce7d219b038307b8d0f18a5240461d7f8e52c0000000000e8030000')
       expect(buffer.toString('hex')).to.equal('b876d698a8b5c86d2008a0df4abce7d219b038307b8d0f18a5240461d7f8e52c0000000000e8030000')
       expect(Input.fromBuffer(buffer).sequence).to.equal(1000)
     })

@@ -68,3 +68,27 @@ console.log(Attachment.fromBuffer(Buffer.from('010000000200000002000000074d56532
 console.log(Attachment.fromBuffer(Buffer.from('01000000000000000', 'hex')))
 // AttachmentETPTransfer { type: 0, version: 1 }
 ```
+
+## Outputs
+
+```
+// decode from buffer
+const output = Output.fromBuffer(Buffer.from('00e1f505000000001976a914e7da370944c15306b3809580110b0a6c653ac5a988ac0100000000000000', 'hex'))
+
+// create ETP outputs
+const etpOutput = new OutputETPTransfer('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve', 100000000)
+
+// get json format
+console.log(output.toJSON())
+// { 
+//    value: 100000000,
+//    script: 'OP_DUP OP_HASH160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] OP_EQUALVERIFY OP_CHECKSIG',
+//    attachment: AttachmentETPTransfer { type: 0, version: 1 } 
+// }
+
+// encode output
+console.log(etpOutput.toBuffer())
+// <Buffer 00 e1 f5 05 00 00 00 00 1a 19 76 a9 14 61 fd e3 bd 4e 69 55 c9 9b 16 de 2d 71 e2 a3 69 88 8a 1c 0b 88 ac 01 00 00 00 00 00 00 00>
+console.log(etpOutput.toString())
+// 00e1f505000000001a1976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac0100000000000000
+```

@@ -1,4 +1,4 @@
-import { toUInt8 } from '../encoder/encoder'
+import { toUInt8, toVarStr } from '../encoder/encoder'
 const OPS = require('metaverse-ops')
 const base58check = require('base58check')
 const pushdata = require('pushdata-bitcoin')
@@ -9,7 +9,7 @@ for (var op in OPS) {
     reverseOps[code] = op;
 }
 
-export type ScriptType = 'P2PKH' | 'P2SH'
+export type ScriptType = 'P2PKH' | 'P2SH' | 'CUSTROM'
 
 export interface IScript {
     scriptType: ScriptType
@@ -41,10 +41,10 @@ export abstract class Script implements IScript {
     }
 
     static fromFullnode(script: string) {
-        return Script.fromASM(fullnodeFormat(script))
+        return Script.toBuffer(fullnodeFormat(script))
     }
 
-    static fromBuffer = function (buffer: Buffer) {
+    static splitBuffer = function (buffer: Buffer) {
         var chunks: Buffer[] = [];
         var i = 0;
 
@@ -54,8 +54,6 @@ export abstract class Script implements IScript {
             if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {
                 var d = pushdata.decode(buffer, i);
 
-                // did reading a pushDataInt fail? return non-chunked script
-                if (d === null) return []
                 i += d.size;
 
                 // attempt to read too much data?
@@ -71,11 +69,10 @@ export abstract class Script implements IScript {
                 i++;
             }
         }
-
         return chunks;
     }
 
-    static fromASM(asm: string) {
+    static toBuffer(asm: string) {
         if(asm.length==0) return Buffer.from('')
         let level = 0
         let chunks: Buffer[] = []
@@ -96,8 +93,8 @@ export abstract class Script implements IScript {
         return Script.fromChunks(chunks)
     }
 
-    static toASM = function (buffer: Buffer) {
-        return Script.fromBuffer(buffer).map((chunk) => {
+    static toString = function (buffer: Buffer) {
+        return Script.splitBuffer(buffer).map((chunk) => {
             // data chunk
             if (Buffer.isBuffer(chunk)) {
                 return '[ ' + chunk.toString('hex') + ' ]';
@@ -153,8 +150,7 @@ export class ScriptP2PKH extends Script {
             toUInt8(25),
             toUInt8(OPS.OP_DUP),
             toUInt8(OPS.OP_HASH160),
-            toUInt8(20),
-            Buffer.from(base58check.decode(this.address, 'hex').data, 'hex'),
+            toVarStr(base58check.decode(this.address, 'hex').data, 'hex'),
             toUInt8(OPS.OP_EQUALVERIFY),
             toUInt8(OPS.OP_CHECKSIG),
         ])

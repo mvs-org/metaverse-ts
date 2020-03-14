@@ -19,7 +19,7 @@ export class Input implements IInput {
         this.prevOutId = prevOutId
         this.prevOutIndex = prevOutIndex
         if (typeof script === 'string') {
-            this.script = Script.fromASM(script)
+            this.script = Script.toBuffer(script)
         } else {
             this.script = script
         }
@@ -41,7 +41,7 @@ export class Input implements IInput {
         return {
             prevOutId: this.prevOutId,
             prevOutIndex: this.prevOutIndex,
-            script: Script.toASM(this.script),
+            script: Script.toString(this.script),
             sequence: this.sequence,
         }
     }
@@ -49,6 +49,10 @@ export class Input implements IInput {
     clearScript() {
         this.script = Buffer.from('')
         return this
+    }
+
+    toString(){
+        return this.toBuffer().toString('hex')
     }
 
     toBuffer() {
