@@ -7,10 +7,22 @@ export const DEFAULT_PATH = '0'
 export class HDWallet {
 
     private network: Network
+    private maxSearchDepth = 250
 
     constructor(public rootNode: bip32.BIP32Interface, network: Network | string = 'mainnet') {
         this.network = getNetwork(network)
         this.rootNode.network = this.network
+    }
+
+    getNode(path: string) {
+        return this.rootNode.derivePath(path)
+    }
+
+    getAddressPath(address: string, path = "m", searchDepth = this.maxSearchDepth) {
+        for(let i=0; i<searchDepth; i++){
+            if (this.getAddress(path + '/' + i) === address) return path + '/' + i
+        }
+        throw Error('Not found')
     }
 
     getAddress(path: string | number) {

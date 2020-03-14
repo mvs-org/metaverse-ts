@@ -4,7 +4,7 @@ import { Script } from '../script/script'
 export const INPUT_DEFAULT_SEQUENCE = -1
 
 export interface IInput {
-    prevOutId: string
+    prevOutId: Buffer
     prevOutIndex: number
     script: Buffer
     sequence: number
@@ -14,9 +14,15 @@ export interface IInput {
 export class Input implements IInput {
 
     script: Buffer
+    prevOutId: Buffer
 
-    constructor(public prevOutId: string, public prevOutIndex: number, script: Buffer | string = Buffer.from(''), public sequence = INPUT_DEFAULT_SEQUENCE) {
-        this.prevOutId = prevOutId
+    constructor(prevOutId: string | Buffer, public prevOutIndex: number, script: Buffer | string = Buffer.from(''), public sequence = INPUT_DEFAULT_SEQUENCE) {
+        if (typeof prevOutId === 'string') {
+            this.prevOutId = Buffer.from(prevOutId, 'hex')
+            this.prevOutId.reverse()
+        } else {
+            this.prevOutId = prevOutId
+        }
         this.prevOutIndex = prevOutIndex
         if (typeof script === 'string') {
             this.script = Script.toBuffer(script)
@@ -25,21 +31,22 @@ export class Input implements IInput {
         }
     }
 
-    static fromBuffer(buffer: Buffer){
-        return Input.decode({buffer, offset: 0})
+    static fromBuffer(buffer: Buffer) {
+        return Input.decode({ buffer, offset: 0 })
     }
 
     static decode(bufferstate: { buffer: Buffer, offset: number }) {
-        const prevId = readSlice(bufferstate, 32).reverse().toString('hex')
-        const prevIndex = readUInt32LE(bufferstate)
-        const script = readString(bufferstate)
-        let sequence = readUInt32LE(bufferstate)
-        return new Input(prevId, prevIndex, script, sequence)
+        return new Input(
+            readSlice(bufferstate, 32),
+            readUInt32LE(bufferstate),
+            readString(bufferstate),
+            readUInt32LE(bufferstate),
+        )
     }
 
     toJSON() {
         return {
-            prevOutId: this.prevOutId,
+            prevOutId: Buffer.concat([this.prevOutId]).reverse().toString('hex'),
             prevOutIndex: this.prevOutIndex,
             script: Script.toString(this.script),
             sequence: this.sequence,
@@ -51,13 +58,13 @@ export class Input implements IInput {
         return this
     }
 
-    toString(){
+    toString() {
         return this.toBuffer().toString('hex')
     }
 
     toBuffer() {
         return Buffer.concat([
-            Buffer.from(this.prevOutId, 'hex').reverse(),
+            this.prevOutId,
             toUInt32LE(this.prevOutIndex),
             toVarInt(this.script.length),
             this.script,

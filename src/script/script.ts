@@ -1,4 +1,4 @@
-import { toUInt8, toVarStr } from '../encoder/encoder'
+import { toUInt8, toVarStr, } from '../encoder/encoder'
 const OPS = require('metaverse-ops')
 const base58check = require('base58check')
 const pushdata = require('pushdata-bitcoin')
@@ -73,7 +73,7 @@ export abstract class Script implements IScript {
     }
 
     static toBuffer(asm: string) {
-        if(asm.length==0) return Buffer.from('')
+        if (asm.length == 0) return Buffer.from('')
         let level = 0
         let chunks: Buffer[] = []
         asm.split(' ').forEach(chunkStr => {
@@ -93,7 +93,7 @@ export abstract class Script implements IScript {
         return Script.fromChunks(chunks)
     }
 
-    static toString = function (buffer: Buffer) {
+    static toString = function (buffer: Buffer, skipLength = false) {
         return Script.splitBuffer(buffer).map((chunk) => {
             // data chunk
             if (Buffer.isBuffer(chunk)) {
@@ -147,7 +147,6 @@ export class ScriptP2PKH extends Script {
 
     toBuffer() {
         return Buffer.concat([
-            toUInt8(25),
             toUInt8(OPS.OP_DUP),
             toUInt8(OPS.OP_HASH160),
             toVarStr(base58check.decode(this.address, 'hex').data, 'hex'),

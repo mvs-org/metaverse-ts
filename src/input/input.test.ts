@@ -5,10 +5,10 @@ describe('Input', () => {
 
   describe('Deode', () => {
     it('from buffer', ()=>{
-      expect(Input.fromBuffer(Buffer.from('b876d698a8b5c86d2008a0df4abce7d219b038307b8d0f18a5240461d7f8e52c0000000000e8030000', 'hex'))).to.deep.equal({
+      expect(Input.fromBuffer(Buffer.from('b876d698a8b5c86d2008a0df4abce7d219b038307b8d0f18a5240461d7f8e52c0000000000e8030000', 'hex')).toJSON()).to.deep.equal({
           "prevOutId": "2ce5f8d7610424a5180f8d7b3038b019d2e7bc4adfa008206dc8b5a898d676b8",
           "prevOutIndex": 0,
-          "script": Buffer.from(''),
+          "script": '',
           "sequence": 1000,
         })
     })

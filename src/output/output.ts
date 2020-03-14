@@ -27,7 +27,7 @@ export class Output implements IOutput {
     toJSON() {
         return {
             value: this.value,
-            script: Script.toString(this.script),
+            script: Script.toString(this.script, true),
             attachment: this.attachment.toJSON()
         }
     }
@@ -52,7 +52,6 @@ export class Output implements IOutput {
     static decode(bufferstate: { buffer: Buffer, offset: number }) {
         const value = readInt64LE(bufferstate)
         const script = Script.toString(readString(bufferstate))
-        
         const attachment = Attachment.decode(bufferstate)
         return new Output(value, attachment, script)
     }

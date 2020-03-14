@@ -37,7 +37,7 @@ describe('Script', () => {
 
   describe('P2PKH', () => {
     it('toBuffer', () => {
-      expect(new ScriptP2PKH('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve').toBuffer().toString('hex')).equal('1976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac')
+      expect(new ScriptP2PKH('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve').toBuffer().toString('hex')).equal('76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac')
     })
   })
 
