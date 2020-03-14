@@ -82,10 +82,13 @@ export class Transaction implements IEncodable {
         return toUInt32LE(this.lock_time)
     }
 
-    static decode(buffer: Buffer){
+    static decode(data: Buffer | string){
+        if(typeof data === 'string'){
+            data = Buffer.from(data, 'hex')
+        }
         let offset = 0
         const tx = new Transaction()
-        const bufferstate = {buffer, offset}
+        const bufferstate = {buffer: data, offset}
         tx.version = Transaction.decodeVersion(bufferstate)
         const numberOfInputs = readVarInt(bufferstate).number
         for(let i=0; i<numberOfInputs; i++){

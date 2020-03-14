@@ -28,7 +28,7 @@ export class Output implements IOutput {
         return {
             value: this.value,
             script: Script.toString(this.script),
-            attachment: this.attachment
+            attachment: this.attachment.toJSON()
         }
     }
 
