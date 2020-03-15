@@ -1,6 +1,6 @@
-import { expect, } from 'chai'
-import { Address } from './address';
-import { Networks } from '../network/network';
+import { expect } from 'chai'
+import { Address } from './address'
+import { Networks } from '../network/network'
 
 describe('Address', () => {
 
@@ -34,4 +34,4 @@ describe('Address', () => {
     })
   })
 
-});
+})

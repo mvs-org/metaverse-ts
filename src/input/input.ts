@@ -1,9 +1,9 @@
-import { toUInt32LE, toVarInt, readUInt32LE, readSlice, readString } from '../encoder/encoder'
+import { toUInt32LE, toVarInt, readUInt32LE, readSlice, readString, IEncodable, BufferState } from '../encoder/encoder'
 import { Script } from '../script/script'
 
 export const INPUT_DEFAULT_SEQUENCE = -1
 
-export interface IInput {
+export interface IInput extends IEncodable {
     prevOutId: Buffer
     prevOutIndex: number
     script: Buffer
@@ -35,7 +35,7 @@ export class Input implements IInput {
         return Input.decode({ buffer, offset: 0 })
     }
 
-    static decode(bufferstate: { buffer: Buffer, offset: number }) {
+    static decode(bufferstate: BufferState) {
         return new Input(
             readSlice(bufferstate, 32),
             readUInt32LE(bufferstate),
@@ -68,7 +68,7 @@ export class Input implements IInput {
             toUInt32LE(this.prevOutIndex),
             toVarInt(this.script.length),
             this.script,
-            this.sequence > 0 ? toUInt32LE(this.sequence) : toUInt32LE(0xffffffff)
+            this.sequence > 0 ? toUInt32LE(this.sequence) : toUInt32LE(0xffffffff),
         ])
     }
 }

@@ -1,14 +1,14 @@
 import { HDWallet } from './wallet'
-import * as chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { Transaction } from '../transaction/transaction';
-import { Input } from '../input/input';
-import { OutputETPTransfer } from '../output/output';
+import * as chai from "chai"
+import chaiAsPromised from "chai-as-promised"
+import { Transaction } from '../transaction/transaction'
+import { Input } from '../input/input'
+import { OutputETPTransfer } from '../output/output'
 
 before(() => {
-  chai.should();
-  chai.use(chaiAsPromised);
-});
+  chai.should()
+  chai.use(chaiAsPromised)
+})
 
 describe('Wallet', function () {
 
@@ -85,4 +85,4 @@ describe('Wallet', function () {
   })
 
 
-});
+})

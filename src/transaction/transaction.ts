@@ -1,7 +1,7 @@
-import { Output, IOutput } from '../output/output';
-import { IInput, Input } from '../input/input';
-import { IEncodable, toUInt32LE, hash256FromBuffer, toVarInt, readVarInt } from '../encoder/encoder';
-import { Script } from '../script/script';
+import { Output, IOutput } from '../output/output'
+import { IInput, Input } from '../input/input'
+import { IEncodable, toUInt32LE, hash256FromBuffer, toVarInt, readVarInt } from '../encoder/encoder'
+import { Script } from '../script/script'
 import { script, BIP32Interface } from 'bitcoinjs-lib'
 
 export interface ITransaction {
@@ -12,11 +12,12 @@ export interface ITransaction {
 }
 export class Transaction implements IEncodable {
 
-    constructor(public version = 4) { }
-
-    inputs: Input[] = []
-    outputs: Output[] = []
-    lock_time: number = 0
+    constructor(
+        public version = 4,
+        public inputs: IInput[] = [],
+        public outputs: IOutput[] = [],
+        public lock_time: number = 0,
+    ) { }
 
     toBuffer() {
         return Buffer.concat([
@@ -26,14 +27,14 @@ export class Transaction implements IEncodable {
             toVarInt(this.outputs.length),
             this.encodeOutputs(),
             this.encodeLockTime(),
-        ]);
+        ])
     }
 
     toString() {
         return this.toBuffer().toString('hex')
     }
 
-    getId(format: 'buffer' | 'hex' = 'hex'){
+    getId(format: 'buffer' | 'hex' = 'hex') {
         const buffer = hash256FromBuffer(this.toBuffer()).reverse()
         return format === 'buffer' ? buffer : buffer.toString('hex')
     }
@@ -43,11 +44,11 @@ export class Transaction implements IEncodable {
     }
 
     getSigHash(inputIndex: number, prevOutScript: Buffer | string, hashType = 0x01) {
-        if(hashType!==0x01){
+        if (hashType !== 0x01) {
             throw Error('Unsupported signature hash type')
         }
-        const tmp = Object.create(this)
-        tmp.inputs = tmp.inputs.map((input: IInput, index: number) => {
+        const tmp = this.clone()
+        tmp.inputs = tmp.inputs.map((input, index: number) => {
             if (index !== inputIndex) {
                 return input.clearScript()
             }
@@ -55,6 +56,10 @@ export class Transaction implements IEncodable {
             return input
         })
         return hash256FromBuffer(Buffer.concat([tmp.toBuffer(), toUInt32LE(hashType)]))
+    }
+
+    clone() {
+        return new Transaction(this.version, this.inputs, this.outputs, this.lock_time)
     }
 
     encodeVersion() {

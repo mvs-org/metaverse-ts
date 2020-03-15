@@ -1,12 +1,16 @@
-import { toUInt8, toVarStr, } from '../encoder/encoder'
+import { toUInt8, toVarStr } from '../encoder/encoder'
 const OPS = require('metaverse-ops')
-const base58check = require('base58check')
+const base58check: {
+    encode: (buffer: Buffer, version: string) => Buffer,
+    decode: (address: string) => { data: Buffer, prefix: Buffer },
+    // tslint:disable-next-line: no-unsafe-any
+} = require('base58check')
 const pushdata = require('pushdata-bitcoin')
 
-var reverseOps: any = {};
-for (var op in OPS) {
-    var code = OPS[op];
-    reverseOps[code] = op;
+let reverseOps: any = {}
+for (let op in OPS) {
+    let code = OPS[op]
+    reverseOps[code] = op
 }
 
 export type ScriptType = 'P2PKH' | 'P2SH' | 'CUSTROM'
@@ -26,7 +30,7 @@ function fullnodeFormat(script: string) {
         } else if (level == 0) {
             return 'OP_' + token.toUpperCase()
         }
-        return token;
+        return token
     }).join(' ')
     return script
 }
@@ -45,31 +49,31 @@ export abstract class Script implements IScript {
     }
 
     static splitBuffer = function (buffer: Buffer) {
-        var chunks: Buffer[] = [];
-        var i = 0;
+        let chunks: Buffer[] = []
+        let i = 0
 
         while (i < buffer.length) {
-            var opcode = buffer.readUInt8(i);
+            let opcode = buffer.readUInt8(i)
             // data chunk
             if ((opcode > OPS.OP_0) && (opcode <= OPS.OP_PUSHDATA4)) {
-                var d = pushdata.decode(buffer, i);
+                let d = pushdata.decode(buffer, i)
 
-                i += d.size;
+                i += d.size
 
                 // attempt to read too much data?
                 if (i + d.number > buffer.length) return []
 
-                var data = buffer.slice(i, i + d.number);
-                i += d.number;
-                chunks.push(data);
+                let data = buffer.slice(i, i + d.number)
+                i += d.number
+                chunks.push(data)
 
                 // opcode
             } else {
                 chunks.push(reverseOps[opcode])
-                i++;
+                i++
             }
         }
-        return chunks;
+        return chunks
     }
 
     static toBuffer(asm: string) {
@@ -93,48 +97,48 @@ export abstract class Script implements IScript {
         return Script.fromChunks(chunks)
     }
 
-    static toString = function (buffer: Buffer, skipLength = false) {
+    static toString = function (buffer: Buffer) {
         return Script.splitBuffer(buffer).map((chunk) => {
             // data chunk
             if (Buffer.isBuffer(chunk)) {
-                return '[ ' + chunk.toString('hex') + ' ]';
+                return '[ ' + chunk.toString('hex') + ' ]'
                 // opcode
             } else {
-                return chunk;
+                return chunk
             }
-        }).join(' ');
+        }).join(' ')
     }
 
     static fromChunks(chunks: Buffer[]) {
 
-        var bufferSize = chunks.reduce(function (accum, chunk) {
+        let bufferSize = chunks.reduce(function (accum, chunk) {
             // data chunk
             if (Buffer.isBuffer(chunk)) {
-                return accum + pushdata.encodingLength(chunk.length) + chunk.length;
+                return accum + pushdata.encodingLength(chunk.length) + chunk.length
             }
             // opcode
-            return accum + 1;
-        }, 0.0);
+            return accum + 1
+        }, 0.0)
 
-        var buffer = Buffer.alloc(bufferSize);
-        var offset = 0;
+        let buffer = Buffer.alloc(bufferSize)
+        let offset = 0
 
         chunks.forEach(function (chunk) {
             // data chunk
             if (Buffer.isBuffer(chunk)) {
-                offset += pushdata.encode(buffer, chunk.length, offset);
+                offset += pushdata.encode(buffer, chunk.length, offset)
 
-                chunk.copy(buffer, offset);
-                offset += chunk.length;
+                chunk.copy(buffer, offset)
+                offset += chunk.length
 
                 // opcode
             } else {
-                buffer.writeUInt8(chunk, offset);
-                offset += 1;
+                buffer.writeUInt8(chunk, offset)
+                offset += 1
             }
-        });
-        return buffer;
-    };
+        })
+        return buffer
+    }
 }
 
 export class ScriptP2PKH extends Script {
@@ -149,7 +153,7 @@ export class ScriptP2PKH extends Script {
         return Buffer.concat([
             toUInt8(OPS.OP_DUP),
             toUInt8(OPS.OP_HASH160),
-            toVarStr(base58check.decode(this.address, 'hex').data, 'hex'),
+            toVarStr(base58check.decode(this.address).data.toString('hex'), 'hex'),
             toUInt8(OPS.OP_EQUALVERIFY),
             toUInt8(OPS.OP_CHECKSIG),
         ])

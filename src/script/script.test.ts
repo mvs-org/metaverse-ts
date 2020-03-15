@@ -1,4 +1,4 @@
-import { expect, } from 'chai'
+import { expect } from 'chai'
 import { Script, ScriptP2PKH } from './script'
 
 describe('Script', () => {

@@ -1,4 +1,4 @@
-import { bip32, payments, Network, } from 'bitcoinjs-lib'
+import { bip32, payments, Network } from 'bitcoinjs-lib'
 import { mnemonicToSeedSync, validateMnemonic, generateMnemonic, wordlists } from 'bip39'
 import { getNetwork } from '../network/network'
 

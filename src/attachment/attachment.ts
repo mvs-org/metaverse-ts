@@ -1,4 +1,14 @@
-import { IEncodable, toUInt32LE, readUInt32LE, readString, toVarStr, readInt64LE, readInt8, toUInt64LE, toUInt8, } from '../encoder/encoder'
+import {
+    IEncodable,
+    toUInt32LE,
+    readUInt32LE,
+    readString,
+    toVarStr,
+    readInt64LE,
+    readInt8,
+    toUInt64LE,
+    toUInt8,
+} from '../encoder/encoder'
 
 export const ATTACHMENT_TYPE_ETP_TRANSFER = 0
 export const ATTACHMENT_TYPE_MST = 2
@@ -34,7 +44,7 @@ export abstract class Attachment implements IAttachment {
             this.encodeDid(),
         ])
     }
-    toString(){
+    toString() {
         return this.toBuffer().toString('hex')
     }
     encodeDid(): Buffer {
@@ -63,7 +73,7 @@ export abstract class Attachment implements IAttachment {
         const type = readUInt32LE(bufferstate)
         const did = (version === ATTACHMENT_VERSION_DID) ? {
             from_did: readString(bufferstate).toString(),
-            to_did: readString(bufferstate).toString()
+            to_did: readString(bufferstate).toString(),
         } : undefined
         let attachment
 
@@ -125,7 +135,7 @@ export class AttachmentMessage extends Attachment {
     toBuffer() {
         return Buffer.concat([
             super.toBuffer(),
-            toVarStr(this.data)
+            toVarStr(this.data),
         ])
     }
 }

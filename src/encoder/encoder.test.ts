@@ -1,5 +1,5 @@
-import { expect, } from 'chai'
-import { verifuint, toUInt8, readInt64LE, toUInt64LE } from './encoder';
+import { expect } from 'chai'
+import { verifuint, toUInt8, readInt64LE, toUInt64LE } from './encoder'
 
 
 describe('Encoder', () => {
@@ -42,5 +42,4 @@ describe('Encoder', () => {
     })
   })
 
-
-});
+})
