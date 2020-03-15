@@ -1,10 +1,10 @@
-# Metaverse for JavaScript
 <p align="center">
   <a href="https://mvs.org/">
-    <img src="https://raw.githubusercontent.com/mvs-org/lightwallet/master/src/assets/logo.png" alt="">
+    <img width="200" src="https://raw.githubusercontent.com/mvs-org/lightwallet/master/src/assets/logo.png" alt="">
   </a>
   <br>
   <a href='https://coveralls.io/github/mvs-org/metaverse-ts?branch=master'><img src='https://coveralls.io/repos/github/mvs-org/metaverse-ts/badge.svg?branch=master' alt='Coverage Status' /></a>
+  <a href='https://github.com/mvs-org/metaverse-ts/actions?query=workflow%3Atest'><img src='https://github.com/mvs-org/metaverse-ts/workflows/test/badge.svg' alt='Test Status' /></a>
   <br>
   JavaScript library for the Metaverse Blockchain
 </p>
