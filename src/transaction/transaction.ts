@@ -1,8 +1,8 @@
 import { Output, IOutput } from '../output/output'
 import { IInput, Input } from '../input/input'
 import { IEncodable, toUInt32LE, hash256FromBuffer, toVarInt, readVarInt } from '../encoder/encoder'
-import { Script } from '../script/script'
-import { script, BIP32Interface } from 'bitcoinjs-lib'
+import { Signature } from '../signature/signature'
+import { BIP32Interface } from 'bitcoinjs-lib'
 
 export interface ITransaction {
     version: number
@@ -39,23 +39,9 @@ export class Transaction implements IEncodable {
         return format === 'buffer' ? buffer : buffer.toString('hex')
     }
 
-    sign(inputIndex: number, node: BIP32Interface, prevOutScript: Buffer | string, hashType = 0x01) {
-        return script.signature.encode(node.sign(this.getSigHash(inputIndex, prevOutScript, hashType)), hashType)
-    }
-
-    getSigHash(inputIndex: number, prevOutScript: Buffer | string, hashType = 0x01) {
-        if (hashType !== 0x01) {
-            throw Error('Unsupported signature hash type')
-        }
-        const tmp = this.clone()
-        tmp.inputs = tmp.inputs.map((input, index: number) => {
-            if (index !== inputIndex) {
-                return input.clearScript()
-            }
-            input.script = typeof prevOutScript === 'string' ? Script.toBuffer(prevOutScript) : prevOutScript
-            return input
-        })
-        return hash256FromBuffer(Buffer.concat([tmp.toBuffer(), toUInt32LE(hashType)]))
+    sign(inputIndex: number, node: BIP32Interface, prevOutScript: Buffer | string, hashType?: number) {
+        const preparedHash = Signature.hash(this.clone(), inputIndex, prevOutScript, hashType)
+        return new Signature(node.sign(preparedHash), hashType).toBuffer()
     }
 
     clone() {

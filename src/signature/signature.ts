@@ -1,13 +1,22 @@
+import { Script } from '../script/script'
+import { toUInt32LE, hash256FromBuffer } from '../encoder/encoder'
+import { Transaction } from '../transaction/transaction'
 
-export const SIGHASH_ANYONECANPAY = 0x80
+const bip66: {
+    decode: (buffer: Buffer) => { r: Buffer, s: Buffer },
+    encode: (r: Buffer, s: Buffer) => Buffer,
+    // tslint:disable-next-line: no-unsafe-any
+} = require('bip66')
+
 
 export const SIGHASH_ALL = 0x01
 export const SIGHASH_NONE = 0x02
 export const SIGHASH_SINGLE = 0x03
+export const SIGHASH_ANYONECANPAY = 0x80
 
 export class Signature {
 
-    constructor(public signature: Buffer, public hashType: number) {
+    constructor(public signature: Buffer, public hashType = SIGHASH_ALL) {
         if ([SIGHASH_ALL, SIGHASH_NONE, SIGHASH_SINGLE].indexOf(this.getHashType()) === -1) {
             throw new Error('Invalid hashType ' + hashType)
         }
@@ -22,7 +31,13 @@ export class Signature {
     }
 
     toDER() {
-        return Signature.toDER(this.signature)
+        const r = Signature.toDER(this.signature.slice(0, 32))
+        const s = Signature.toDER(this.signature.slice(32, 64))
+        return bip66.encode(r, s)
+    }
+
+    toBuffer() {
+        return Buffer.concat([this.toDER(), Buffer.of(this.hashType)])
     }
 
     static toDER(x: Buffer) {
@@ -43,43 +58,37 @@ export class Signature {
         return buffer
     }
 
-    static decode(buffer: Buffer) {
-        if (buffer.length < 8) throw new Error('DER sequence length is too short')
-        if (buffer.length > 72) throw new Error('DER sequence length is too long')
-        if (buffer[0] !== 0x30) throw new Error('Expected DER sequence')
-        if (buffer[1] !== buffer.length - 2) throw new Error('DER sequence length is invalid')
-        if (buffer[2] !== 0x02) throw new Error('Expected DER integer')
-
-        let lenR = buffer[3]
-        if (lenR === 0) throw new Error('R length is zero')
-        if (5 + lenR >= buffer.length) throw new Error('R length is too long')
-        if (buffer[4 + lenR] !== 0x02) throw new Error('Expected DER integer (2)')
-
-        let lenS = buffer[5 + lenR]
-        if (lenS === 0) throw new Error('S length is zero')
-        if ((6 + lenR + lenS) !== buffer.length) throw new Error('S length is invalid')
-
-        if (buffer[4] & 0x80) throw new Error('R value is negative')
-        if (lenR > 1 && (buffer[4] === 0x00) && !(buffer[5] & 0x80)) throw new Error('R value excessively padded')
-
-        if (buffer[lenR + 6] & 0x80) throw new Error('S value is negative')
-        if (lenS > 1 && (buffer[lenR + 6] === 0x00) && !(buffer[lenR + 7] & 0x80)) throw new Error('S value excessively padded')
-
-        // non-BIP66 - extract R, S values
-        return {
-            r: buffer.slice(4, 4 + lenR),
-            s: buffer.slice(6 + lenR),
-        }
-    }
-
     static fromBuffer(buffer: Buffer) {
         const hashType = buffer.readUInt8(buffer.length - 1)
-        const decoded = Signature.decode(buffer.slice(0, -1))
-        const signature = Buffer.concat([
-            Signature.fromDER(decoded.r),
-            Signature.fromDER(decoded.s),
-        ], 64)
+        const decoded = bip66.decode(buffer.slice(0, -1))
+        const r = Signature.fromDER(decoded.r)
+        const s = Signature.fromDER(decoded.s)
+        const signature = Buffer.concat([r, s], 64)
         return new Signature(signature, hashType)
     }
-}
 
+    static hash(tx: Transaction, inputIndex: number, prevOutScript: string | Buffer, hashType = SIGHASH_ALL) {
+        switch (hashType & ~SIGHASH_ANYONECANPAY) {
+            case SIGHASH_ALL:
+                break
+            case SIGHASH_NONE:
+                tx.outputs = []
+                break
+            case SIGHASH_SINGLE:
+                if (inputIndex > tx.outputs.length - 1) {
+                    throw Error('Matching output index not found')
+                }
+                tx.outputs = [tx.outputs[inputIndex]]
+                break
+            default:
+                throw Error('Unsupported signature hash type')
+        }
+        if ((hashType & SIGHASH_ANYONECANPAY) === 0) {
+            tx.inputs = tx.inputs.map((input) => input.clearScript())
+        }
+        tx.inputs[inputIndex].script = typeof prevOutScript === 'string' ? Script.toBuffer(prevOutScript) : prevOutScript
+        return hash256FromBuffer(Buffer.concat([tx.toBuffer(), toUInt32LE(hashType)]))
+
+    }
+
+}

@@ -10,6 +10,7 @@
   "dependencies": {
     "base58check": "^2.0.0",
     "bip39": "^3.0.2",
+    "bip66": "^1.1.5",
     "bitcoinjs-lib": "^5.1.7",
     "metaverse-ops": "^0.1.0",
     "pushdata-bitcoin": "^1.0.1",
