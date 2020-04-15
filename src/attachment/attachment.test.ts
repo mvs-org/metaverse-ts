@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, ATTACHMENT_VERSION_DID, ATTACHMENT_TYPE_ETP_TRANSFER, AttachmentMITIssue, ATTACHMENT_TYPE_MIT, AttachmentMITTransfer, ATTACHMENT_VERSION_DEFAULT, AttachmentAvatarTransfer, ATTACHMENT_TYPE_AVATAR, AttachmentAvatarRegister, AVATAR_STATUS_REGISTER, AVATAR_STATUS_TRANSFER } from './attachment'
+import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, AttachmentMITIssue, AttachmentMITTransfer, AttachmentAvatarTransfer, AttachmentAvatarRegister, ATTACHMENT_TYPE, ATTACHMENT_VERSION, AVATAR_STATUS, AttachmentDomainCertificate, AttachmentMiningCertificate , CERTIFICATE_STATUS, CERTIFICATE_TYPE } from './attachment'
 
 describe('Attachment', () => {
 
@@ -35,8 +35,8 @@ describe('Attachment', () => {
   describe('MIT Issue Attachment', () => {
     const serialized = 'cf0000000600000006446170686e6506446170686e650106444150484e45224d444772394866533872616d6f695851356a4a5565365448544a797062717774714c14446170686e652773204d49542061737365747320'
     const object = {
-      type: ATTACHMENT_TYPE_MIT,
-      version: ATTACHMENT_VERSION_DID,
+      type: ATTACHMENT_TYPE.MIT,
+      version: ATTACHMENT_VERSION.DID,
       to_did: 'Daphne',
       from_did: 'Daphne',
       symbol: 'DAPHNE',
@@ -60,8 +60,8 @@ describe('Attachment', () => {
     const attachment = new AttachmentMITTransfer('DAPHNE', 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL')
     const serialized = '01000000060000000206444150484e45224d444772394866533872616d6f695851356a4a5565365448544a797062717774714c'
     const object = {
-      type: ATTACHMENT_TYPE_MIT,
-      version: ATTACHMENT_VERSION_DEFAULT,
+      type: ATTACHMENT_TYPE.MIT,
+      version: ATTACHMENT_VERSION.DEFAULT,
       symbol: 'DAPHNE',
       address: 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL',
     }
@@ -80,11 +80,11 @@ describe('Attachment', () => {
     const attachment = new AttachmentAvatarRegister('cangr', 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ')
     const serialized = '0100000004000000010563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a51'
     const object = {
-      type: ATTACHMENT_TYPE_AVATAR,
-      version: ATTACHMENT_VERSION_DEFAULT,
+      type: ATTACHMENT_TYPE.AVATAR,
+      version: ATTACHMENT_VERSION.DEFAULT,
       symbol: 'cangr',
       address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
-      status: AVATAR_STATUS_REGISTER,
+      status: AVATAR_STATUS.REGISTER,
     }
     it('serialize to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal(serialized)
@@ -101,11 +101,11 @@ describe('Attachment', () => {
     const attachment = new AttachmentAvatarTransfer('cangr', 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ')
     const serialized = '0100000004000000020563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a51'
     const object = {
-      type: ATTACHMENT_TYPE_AVATAR,
-      version: ATTACHMENT_VERSION_DEFAULT,
+      type: ATTACHMENT_TYPE.AVATAR,
+      version: ATTACHMENT_VERSION.DEFAULT,
       symbol: 'cangr',
       address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
-      status: AVATAR_STATUS_TRANSFER,
+      status: AVATAR_STATUS.TRANSFER,
     }
     it('serialize to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal(serialized)
@@ -154,6 +154,65 @@ describe('Attachment', () => {
     })
   })
 
+  describe('Domain Certificate Attachment', () => {
+    const object = {
+      "symbol": "MVS",
+      "owner": 'cangr',
+      "address": 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
+      "version": 1,
+      certType: CERTIFICATE_TYPE.DOMAIN,
+      status: CERTIFICATE_STATUS.ISSUE,
+      type: ATTACHMENT_TYPE.CERTIFICATE,
+      content: undefined,
+    }
+    const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a510200000001'
+    const attachment = new AttachmentDomainCertificate(
+      object.symbol,
+      object.owner,
+      object.address,
+      CERTIFICATE_STATUS.ISSUE,
+    )
+    it('transform to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+    it('decode from buffer', () => {
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+  })
+
+  describe('Mining Certificate Attachment', () => {
+    const object = {
+      symbol: 'MVS',
+      owner: 'cangr',
+      address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
+      version: 1,
+      certType: CERTIFICATE_TYPE.MINING,
+      status: CERTIFICATE_STATUS.DEFAULT,
+      type: ATTACHMENT_TYPE.CERTIFICATE,
+      content: 'abc',
+    }
+    const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a51040000600003616263'
+    const attachment = new AttachmentMiningCertificate(
+      object.symbol,
+      object.owner,
+      object.address,
+      CERTIFICATE_STATUS.DEFAULT,
+      object.content,
+    )
+    it('transform to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+    it('decode from buffer', () => {
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+  })
+
   describe('Did Attachment', () => {
     it('encode did', () => {
       class TestAttachment extends Attachment { }
@@ -171,20 +230,20 @@ describe('Attachment', () => {
       expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617203666f6f', 'hex')).toJSON()).deep.equal({
         to_did: 'foo',
         from_did: 'bar',
-        type: ATTACHMENT_TYPE_ETP_TRANSFER,
-        version: ATTACHMENT_VERSION_DID,
+        type: ATTACHMENT_TYPE.ETP_TRANSFER,
+        version: ATTACHMENT_VERSION.DID,
       })
       expect(Attachment.fromBuffer(Buffer.from('cf000000000000000003626172', 'hex')).toJSON()).deep.equal({
         from_did: '',
         to_did: 'bar',
-        type: ATTACHMENT_TYPE_ETP_TRANSFER,
-        version: ATTACHMENT_VERSION_DID,
+        type: ATTACHMENT_TYPE.ETP_TRANSFER,
+        version: ATTACHMENT_VERSION.DID,
       })
       expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617200', 'hex')).toJSON()).deep.equal({
         from_did: 'bar',
         to_did: '',
-        type: ATTACHMENT_TYPE_ETP_TRANSFER,
-        version: ATTACHMENT_VERSION_DID,
+        type: ATTACHMENT_TYPE.ETP_TRANSFER,
+        version: ATTACHMENT_VERSION.DID,
       })
     })
   })
