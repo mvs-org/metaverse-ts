@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, ATTACHMENT_VERSION_DID, ATTACHMENT_TYPE_ETP_TRANSFER } from './attachment'
+import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, ATTACHMENT_VERSION_DID, ATTACHMENT_TYPE_ETP_TRANSFER, AttachmentMITIssue, ATTACHMENT_TYPE_MIT, AttachmentMITTransfer, ATTACHMENT_VERSION_DEFAULT } from './attachment'
 
 describe('Attachment', () => {
 
@@ -32,9 +32,53 @@ describe('Attachment', () => {
     })
   })
 
+  describe('MIT Issue Attachment', () => {
+    const serialized = 'cf0000000600000006446170686e6506446170686e650106444150484e45224d444772394866533872616d6f695851356a4a5565365448544a797062717774714c14446170686e652773204d49542061737365747320'
+    const object = {
+      type: ATTACHMENT_TYPE_MIT,
+      version: ATTACHMENT_VERSION_DID,
+      to_did: 'Daphne',
+      from_did: 'Daphne',
+      symbol: 'DAPHNE',
+      content: 'Daphne\'s MIT assets ',
+      address: 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL',
+    }
+    const attachment = new AttachmentMITIssue('DAPHNE', 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL', "Daphne's MIT assets ")
+    attachment.setDid('Daphne', 'Daphne')
+    it('serialize to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+    it('decode from buffer', ()=>{
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+  })
+
+  describe('MIT Transfer Attachment', () => {
+    const attachment = new AttachmentMITTransfer('DAPHNE', 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL')
+    const serialized = '01000000060000000206444150484e45224d444772394866533872616d6f695851356a4a5565365448544a797062717774714c'
+    const object = {
+      type: ATTACHMENT_TYPE_MIT,
+      version: ATTACHMENT_VERSION_DEFAULT,
+      symbol: 'DAPHNE',
+      address: 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL',
+    }
+    it('serialize to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('decode from buffer', ()=>{
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+  })
+
   describe('Message Attachment', () => {
     const attachment = new AttachmentMessage('hello')
-    it('transform to buffer', () => {
+    it('serialize to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal('01000000030000000568656c6c6f')
     })
     it('transform to json', () => {
@@ -56,7 +100,7 @@ describe('Attachment', () => {
       hug.symbol,
       hug.quantity,
     )
-    
+
     it('transform to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal('010000000200000002000000074d56532e4855470200000000000000')
     })
@@ -68,33 +112,33 @@ describe('Attachment', () => {
     })
   })
 
-  describe('Did Attachment', ()=>{
-    it('encode did', ()=>{
+  describe('Did Attachment', () => {
+    it('encode did', () => {
       class TestAttachment extends Attachment { }
 
       expect(new TestAttachment(1).setDid('foo').encodeDid().toString('hex')).equal('0003666f6f')
-      expect(new TestAttachment(1,1).setDid('foo', 'bar').encodeDid().toString('hex')).equal('0362617203666f6f')
-      expect(new TestAttachment(1,1).setDid(undefined, 'foo').encodeDid().toString('hex')).equal('03666f6f00')
-      expect(new TestAttachment(1,1).encodeDid().toString('hex')).equal('')
+      expect(new TestAttachment(1, 1).setDid('foo', 'bar').encodeDid().toString('hex')).equal('0362617203666f6f')
+      expect(new TestAttachment(1, 1).setDid(undefined, 'foo').encodeDid().toString('hex')).equal('03666f6f00')
+      expect(new TestAttachment(1, 1).encodeDid().toString('hex')).equal('')
     })
     it('did enabled etp transfer', () => {
       const attachment = new AttachmentETPTransfer(
         2,
       ).setDid('foo', 'bar')
       expect(attachment.toBuffer().toString('hex')).equal('cf000000000000000362617203666f6f')
-      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617203666f6f','hex')).toJSON()).deep.equal({
+      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617203666f6f', 'hex')).toJSON()).deep.equal({
         to_did: 'foo',
         from_did: 'bar',
         type: ATTACHMENT_TYPE_ETP_TRANSFER,
         version: ATTACHMENT_VERSION_DID,
       })
-      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000003626172','hex')).toJSON()).deep.equal({
+      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000003626172', 'hex')).toJSON()).deep.equal({
         from_did: '',
         to_did: 'bar',
         type: ATTACHMENT_TYPE_ETP_TRANSFER,
         version: ATTACHMENT_VERSION_DID,
       })
-      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617200','hex')).toJSON()).deep.equal({
+      expect(Attachment.fromBuffer(Buffer.from('cf000000000000000362617200', 'hex')).toJSON()).deep.equal({
         from_did: 'bar',
         to_did: '',
         type: ATTACHMENT_TYPE_ETP_TRANSFER,
