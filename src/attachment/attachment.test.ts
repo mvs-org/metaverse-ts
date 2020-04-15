@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, ATTACHMENT_VERSION_DID, ATTACHMENT_TYPE_ETP_TRANSFER, AttachmentMITIssue, ATTACHMENT_TYPE_MIT, AttachmentMITTransfer, ATTACHMENT_VERSION_DEFAULT } from './attachment'
+import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, ATTACHMENT_VERSION_DID, ATTACHMENT_TYPE_ETP_TRANSFER, AttachmentMITIssue, ATTACHMENT_TYPE_MIT, AttachmentMITTransfer, ATTACHMENT_VERSION_DEFAULT, AttachmentAvatarTransfer, ATTACHMENT_TYPE_AVATAR, AttachmentAvatarRegister, AVATAR_STATUS_REGISTER, AVATAR_STATUS_TRANSFER } from './attachment'
 
 describe('Attachment', () => {
 
@@ -64,6 +64,48 @@ describe('Attachment', () => {
       version: ATTACHMENT_VERSION_DEFAULT,
       symbol: 'DAPHNE',
       address: 'MDGr9HfS8ramoiXQ5jJUe6THTJypbqwtqL',
+    }
+    it('serialize to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('decode from buffer', ()=>{
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+  })
+
+  describe('Avatar Register Attachment', () => {
+    const attachment = new AttachmentAvatarRegister('cangr', 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ')
+    const serialized = '0100000004000000010563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a51'
+    const object = {
+      type: ATTACHMENT_TYPE_AVATAR,
+      version: ATTACHMENT_VERSION_DEFAULT,
+      symbol: 'cangr',
+      address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
+      status: AVATAR_STATUS_REGISTER,
+    }
+    it('serialize to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('decode from buffer', ()=>{
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+  })
+
+  describe('Avatar Transfer Attachment', () => {
+    const attachment = new AttachmentAvatarTransfer('cangr', 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ')
+    const serialized = '0100000004000000020563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a51'
+    const object = {
+      type: ATTACHMENT_TYPE_AVATAR,
+      version: ATTACHMENT_VERSION_DEFAULT,
+      symbol: 'cangr',
+      address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
+      status: AVATAR_STATUS_TRANSFER,
     }
     it('serialize to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal(serialized)

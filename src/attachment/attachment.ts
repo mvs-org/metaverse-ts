@@ -13,6 +13,7 @@ import {
 export const ATTACHMENT_TYPE_ETP_TRANSFER = 0
 export const ATTACHMENT_TYPE_MST = 2
 export const ATTACHMENT_TYPE_MESSAGE = 3
+export const ATTACHMENT_TYPE_AVATAR = 4
 export const ATTACHMENT_TYPE_MIT = 6
 
 export const ATTACHMENT_VERSION_DEFAULT = 1
@@ -23,6 +24,9 @@ export const MST_STATUS_TRANSFER = 2
 
 export const MIT_STATUS_ISSUE = 1
 export const MIT_STATUS_TRANSFER = 2
+
+export const AVATAR_STATUS_REGISTER = 1
+export const AVATAR_STATUS_TRANSFER = 2
 
 export interface IAttachment extends IEncodable {
     type: number
@@ -99,6 +103,24 @@ export abstract class Attachment implements IAttachment {
                 }
                 const content = readString(bufferstate).toString()
                 attachment = new AttachmentMITIssue(symbol, address, content)
+                break
+            case ATTACHMENT_TYPE_AVATAR:
+                switch (readInt8(bufferstate)) {
+                    case AVATAR_STATUS_REGISTER:
+                        attachment = new AttachmentAvatarRegister(
+                            readString(bufferstate).toString(),
+                            readString(bufferstate).toString(),
+                        )
+                        break
+                    case AVATAR_STATUS_TRANSFER:
+                        attachment = new AttachmentAvatarTransfer(
+                            readString(bufferstate).toString(),
+                            readString(bufferstate).toString(),
+                        )
+                        break
+                    default:
+                        throw Error('Invalid avatar attachment status')
+                }
                 break
             case ATTACHMENT_TYPE_MST:
                 const mstStatus = readUInt32LE(bufferstate)
@@ -180,13 +202,12 @@ export class AttachmentMSTTransfer extends Attachment {
         super(ATTACHMENT_TYPE_MST, version)
     }
     toBuffer() {
-        return Buffer.concat(
-            [
-                super.toBuffer(),
-                toUInt32LE(MST_STATUS_TRANSFER),
-                toVarStr(this.symbol),
-                toUInt64LE(this.quantity),
-            ])
+        return Buffer.concat([
+            super.toBuffer(),
+            toUInt32LE(MST_STATUS_TRANSFER),
+            toVarStr(this.symbol),
+            toUInt64LE(this.quantity),
+        ])
     }
 }
 
@@ -219,6 +240,32 @@ export class AttachmentMITTransfer extends Attachment {
     }
 }
 
-// 04000000011d8d1bffee00ddce6bd05ebb7bf4da58626dc77ebd2c3fe4eca01bd8202826ab000000006b483045022100c15a440c7fda757e6fea7b60c5f5b1e76f0755c9218fa43a951275be8235079a0220233a20bfe12644ad15a31ea4b18eed571374e5b44f9b0b683631569fcb191b77012102ed6134b78ef2a4a38bbf6d1c37878e16a58127ffe777012d93d5fa4ab20b54c8ffffffff0200000000000000001976a91448b6adc8508180d58d2efe4a6068e7934fdf8b3088accf000000060000000563616e67720563616e67720104544553542274445a35594d4c4a337a365662764173583163386f6539684a326e4e44346a737a7a047465737476e6440b000000001976a91448b6adc8508180d58d2efe4a6068e7934fdf8b3088ac010000000000000000000000
+export class AttachmentAvatarRegister extends Attachment {
+    private status = AVATAR_STATUS_REGISTER
+    constructor(private symbol: string, private address: string) {
+        super(ATTACHMENT_TYPE_AVATAR)
+    }
+    toBuffer() {
+        return Buffer.concat([
+            super.toBuffer(),
+            toUInt8(this.status),
+            toVarStr(this.symbol),
+            toVarStr(this.address),
+        ])
+    }
+}
 
-// 040000000174ef21af39b0ef7ffaaf9ad3eb2eb09aef870b65188c9ad5cbb686e35eeeb234030000006a473044022072f4a9559b251f2aeb2bedffb940665c9d76641dc8b4c16b0bc8675c8e0cf77c02201b8a8c735d6f3a8dde6f80c0c31cc5370ba25c510cc498cbed2a7f2d30b29e930121039fd0412581588e3b1cf80dba38ccca35fe60b7645cbbe30390b9e5903f692383ffffffff0200000000000000001976a9143af2ae30896bebafa32e338662b20e91061b225088accf0000000600000006446170686e6506446170686e650106444150484e45224d444772394866533872616d6f695851356a4a5565365448544a797062717774714c14446170686e652773204d49542061737365747320f0d992ba060000001976a9143af2ae30896bebafa32e338662b20e91061b225088ac010000000000000000000000
+export class AttachmentAvatarTransfer extends Attachment {
+    private status = AVATAR_STATUS_TRANSFER
+    constructor(private symbol: string, private address: string) {
+        super(ATTACHMENT_TYPE_AVATAR)
+    }
+    toBuffer() {
+        return Buffer.concat([
+            super.toBuffer(),
+            toUInt8(this.status),
+            toVarStr(this.symbol),
+            toVarStr(this.address),
+        ])
+    }
+}
