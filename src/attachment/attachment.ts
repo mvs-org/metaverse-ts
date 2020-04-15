@@ -307,6 +307,9 @@ export class AttachmentAvatarRegister extends Attachment {
 export abstract class AttachmentCertificate extends Attachment {
     constructor(private symbol: string, private owner: string, private address: string, private certType: CERTIFICATE_TYPE, private status: CERTIFICATE_STATUS, private content?: string) {
         super(ATTACHMENT_TYPE.CERTIFICATE)
+        if(status < CERTIFICATE_STATUS.DEFAULT || status > CERTIFICATE_STATUS.AUTOISSUE){
+            throw Error('Unsupported certificate status ' + status)
+        }
     }
     toBuffer() {
         return Buffer.concat([

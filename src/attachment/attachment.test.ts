@@ -183,6 +183,18 @@ describe('Attachment', () => {
     })
   })
 
+  describe('Invalid Certificate Attachment', () => {
+    it('detect invalid type 9', ()=>{
+      const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a510900000003'
+      expect(()=>Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.throw('Unsupported certificate type 9')
+    })
+    it('detect invalid status 9', ()=>{
+      const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a510100000009'
+      expect(()=>Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.throw('Unsupported certificate status 9')
+    })
+
+  })
+
   describe('Issue Certificate Attachment', () => {
     const object = {
       symbol: 'MVS',
