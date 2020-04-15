@@ -17,6 +17,7 @@ export enum ATTACHMENT_TYPE {
     AVATAR = 4,
     CERTIFICATE = 5,
     MIT = 6,
+    COINSTAKE = 4294967295,
 }
 
 export enum ATTACHMENT_VERSION {
@@ -109,14 +110,13 @@ export abstract class Attachment implements IAttachment {
             to_did: readString(bufferstate).toString(),
         } : undefined
         let attachment
-
         switch (type) {
             case ATTACHMENT_TYPE.ETP_TRANSFER:
-                attachment = new AttachmentETPTransfer(version)
+                attachment = new AttachmentETPTransfer()
                 break
             case ATTACHMENT_TYPE.MESSAGE:
                 const data = readString(bufferstate)
-                attachment = new AttachmentMessage(data.toString(), version)
+                attachment = new AttachmentMessage(data.toString())
                 break
             case ATTACHMENT_TYPE.CERTIFICATE:
                 const certSymbol = readString(bufferstate).toString()
@@ -209,8 +209,14 @@ export abstract class Attachment implements IAttachment {
 }
 
 export class AttachmentETPTransfer extends Attachment implements IAttachment {
-    constructor(version = ATTACHMENT_VERSION.DEFAULT) {
-        super(ATTACHMENT_TYPE.ETP_TRANSFER, version)
+    constructor() {
+        super(ATTACHMENT_TYPE.ETP_TRANSFER)
+    }
+}
+
+export class AttachmentCoinstake extends Attachment implements IAttachment {
+    constructor() {
+        super(ATTACHMENT_TYPE.COINSTAKE)
     }
 }
 
