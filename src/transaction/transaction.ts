@@ -19,6 +19,11 @@ export class Transaction implements IEncodable {
         public lock_time: number = 0,
     ) { }
 
+    /**
+     * Serializes the transaction as a buffer.
+     *
+     * @returns buffer
+     */
     toBuffer() {
         return Buffer.concat([
             this.encodeVersion(),
@@ -30,10 +35,21 @@ export class Transaction implements IEncodable {
         ])
     }
 
+    /**
+     * Serializes the transaction into hex encoded string.
+     *
+     * @returns hex encoded string
+     */
     toString() {
         return this.toBuffer().toString('hex')
     }
 
+    /**
+     * Get the transaction id
+     *
+     * @param format hex or buffer format
+     * @returns txid as string or buffer depending on the chosen format
+     */
     getId(format: 'buffer' | 'hex' = 'hex') {
         const buffer = hash256FromBuffer(this.toBuffer()).reverse()
         return format === 'buffer' ? buffer : buffer.toString('hex')
