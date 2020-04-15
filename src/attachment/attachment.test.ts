@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, AttachmentMITIssue, AttachmentMITTransfer, AttachmentAvatarTransfer, AttachmentAvatarRegister, ATTACHMENT_TYPE, ATTACHMENT_VERSION, AVATAR_STATUS, AttachmentDomainCertificate, AttachmentMiningCertificate , CERTIFICATE_STATUS, CERTIFICATE_TYPE } from './attachment'
+import { AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTIssue, AttachmentMSTTransfer, AttachmentIssueCertificate, AttachmentNamingCertificate, AttachmentMITIssue, AttachmentMITTransfer, AttachmentAvatarTransfer, AttachmentAvatarRegister, ATTACHMENT_TYPE, ATTACHMENT_VERSION, AVATAR_STATUS, AttachmentDomainCertificate, AttachmentMiningCertificate , CERTIFICATE_STATUS, CERTIFICATE_TYPE } from './attachment'
 
 describe('Attachment', () => {
 
@@ -171,6 +171,65 @@ describe('Attachment', () => {
       object.owner,
       object.address,
       CERTIFICATE_STATUS.ISSUE,
+    )
+    it('transform to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+    it('decode from buffer', () => {
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+  })
+
+  describe('Issue Certificate Attachment', () => {
+    const object = {
+      symbol: 'MVS',
+      owner: 'cangr',
+      address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
+      version: 1,
+      certType: CERTIFICATE_TYPE.ISSUE,
+      status: CERTIFICATE_STATUS.AUTOISSUE,
+      type: ATTACHMENT_TYPE.CERTIFICATE,
+      content: undefined,
+    }
+    const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a510100000003'
+    const attachment = new AttachmentIssueCertificate(
+      object.symbol,
+      object.owner,
+      object.address,
+      CERTIFICATE_STATUS.AUTOISSUE,
+    )
+    it('transform to buffer', () => {
+      expect(attachment.toBuffer().toString('hex')).equal(serialized)
+    })
+    it('transform to json', () => {
+      expect(attachment.toJSON()).to.deep.equal(object)
+    })
+    it('decode from buffer', () => {
+      expect(Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.deep.equal(object)
+    })
+  })
+
+
+  describe('Naming Certificate Attachment', () => {
+    const object = {
+      symbol: 'MVS',
+      owner: 'cangr',
+      address: 'MQWyTasDiEsAUqHy6fHuvzA2vozcVCVizQ',
+      version: 1,
+      certType: CERTIFICATE_TYPE.NAMING,
+      status: CERTIFICATE_STATUS.TRANSFER,
+      type: ATTACHMENT_TYPE.CERTIFICATE,
+      content: undefined,
+    }
+    const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a510300000002'
+    const attachment = new AttachmentNamingCertificate(
+      object.symbol,
+      object.owner,
+      object.address,
+      CERTIFICATE_STATUS.TRANSFER,
     )
     it('transform to buffer', () => {
       expect(attachment.toBuffer().toString('hex')).equal(serialized)
