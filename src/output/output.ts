@@ -1,5 +1,5 @@
 import { Script, ScriptP2PKH } from '../script/script'
-import { IAttachment, AttachmentETPTransfer, Attachment } from '../attachment/attachment'
+import { IAttachment, AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTTransfer } from '../attachment/attachment'
 import { readString, toUInt64LE, readInt64LE, toVarInt, IEncodable } from '../encoder/encoder'
 
 export interface IOutput extends IEncodable {
@@ -58,8 +58,20 @@ export class Output implements IOutput {
 
 }
 
+export class OutputMessage extends Output {
+    constructor(data: string, address: string) {
+        super(0, new AttachmentMessage(data), new ScriptP2PKH(address))
+    }
+}
+
 export class OutputETPTransfer extends Output {
     constructor(address: string, value: number) {
         super(value, new AttachmentETPTransfer(), new ScriptP2PKH(address))
+    }
+}
+
+export class OutputMSTTransfer extends Output {
+    constructor(address: string, symbol: string, quantity: number, value = 0) {
+        super(value, new AttachmentMSTTransfer(symbol, quantity), new ScriptP2PKH(address))
     }
 }

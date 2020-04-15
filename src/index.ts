@@ -1,4 +1,5 @@
 export * from './transaction/transaction'
+export * from './transaction/transaction_builder'
 export * from './output/output'
 export * from './input/input'
 export * from './script/script'
