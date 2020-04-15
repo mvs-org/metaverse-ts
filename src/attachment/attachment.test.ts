@@ -118,6 +118,13 @@ describe('Attachment', () => {
     })
   })
 
+  describe('Invalid Avatar Attachment', () => {
+    it('invalid status', ()=>{
+      const serialized = '0100000004000000030563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a51'
+      expect(()=>Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.throw('Invalid avatar attachment status')
+    })
+  })
+
   describe('Message Attachment', () => {
     const attachment = new AttachmentMessage('hello')
     it('serialize to buffer', () => {
@@ -192,7 +199,6 @@ describe('Attachment', () => {
       const serialized = '0100000005000000034d56530563616e6772224d51577954617344694573415571487936664875767a4132766f7a63564356697a510100000009'
       expect(()=>Attachment.fromBuffer(Buffer.from(serialized, 'hex'))).to.throw('Unsupported certificate status 9')
     })
-
   })
 
   describe('Issue Certificate Attachment', () => {
