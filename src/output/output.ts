@@ -2,12 +2,13 @@ import { Script, ScriptP2PKH } from '../script/script'
 import { IAttachment, AttachmentETPTransfer, Attachment, AttachmentMessage, AttachmentMSTTransfer, AttachmentMSTIssue } from '../attachment/attachment'
 import { readString, toUInt64LE, readInt64LE, toVarInt, IEncodable } from '../encoder/encoder'
 
-export interface IOutput extends IEncodable {
+export interface IOutput {
     value: number
-    script: Buffer
+    script: string
+    attachment: object
 }
 
-export class Output implements IOutput {
+export class Output implements IEncodable {
     value: number
     attachment: IAttachment
     script: Buffer
@@ -24,7 +25,7 @@ export class Output implements IOutput {
         }
     }
 
-    toJSON() {
+    toJSON(): IOutput {
         return {
             value: this.value,
             script: Script.toString(this.script),
