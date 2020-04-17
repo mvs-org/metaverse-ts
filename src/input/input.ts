@@ -3,15 +3,14 @@ import { Script } from '../script/script'
 
 export const INPUT_DEFAULT_SEQUENCE = -1
 
-export interface IInput extends IEncodable {
-    prevOutId: Buffer
+export interface IInput {
+    prevOutId: string
     prevOutIndex: number
-    script: Buffer
+    script: string
     sequence: number
-    clearScript: () => IInput
 }
 
-export class Input implements IInput {
+export class Input implements IEncodable {
 
     script: Buffer
     prevOutId: Buffer
@@ -44,7 +43,7 @@ export class Input implements IInput {
         )
     }
 
-    toJSON() {
+    toJSON(): IInput {
         return {
             prevOutId: Buffer.concat([this.prevOutId]).reverse().toString('hex'),
             prevOutIndex: this.prevOutIndex,
@@ -65,10 +64,10 @@ export class Input implements IInput {
     toBuffer() {
         return Buffer.concat([
             this.prevOutId,
-            toUInt32LE(this.prevOutIndex),
+            toUInt32LE(this.prevOutIndex >= 0 ? this.prevOutIndex : 0xffffffff),
             toVarInt(this.script.length),
             this.script,
-            this.sequence > 0 ? toUInt32LE(this.sequence) : toUInt32LE(0xffffffff),
+            this.sequence >= 0 ? toUInt32LE(this.sequence) : toUInt32LE(0xffffffff),
         ])
     }
 }
