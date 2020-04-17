@@ -47,7 +47,8 @@
   "scripts": {
     "bundle": "webpack",
     "test": "mocha -r ts-node/register src/**/*.test.ts",
-    "coverage": "nyc -e .ts -x \"src/**/*.test.ts\" npm run test",
+    "coverage": "nyc -r lcov -e .ts -x \"src/**/*.test.ts\" npm run test",
+    "coverage-text": "nyc -e .ts -x \"src/**/*.test.ts\" npm run test",
     "coveralls": "nyc --reporter=text-lcov -e .ts -x \"src/**/*.test.ts\" npm run test | node_modules/coveralls/bin/coveralls.js"
   },
   "author": "Sven Mutzl",
