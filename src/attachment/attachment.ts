@@ -54,15 +54,14 @@ export enum CERTIFICATE_STATUS {
     AUTOISSUE = 3,
 }
 
-export interface IAttachment extends IEncodable {
+export interface IAttachment {
     type: number
     version: number
     from_did?: string
     to_did?: string
-    setDid(from: string, to: string): IAttachment
 }
 
-export abstract class Attachment implements IAttachment {
+export abstract class Attachment implements IEncodable {
     type: number
     version: number
     from_did?: string
@@ -238,7 +237,7 @@ export class AttachmentMessage extends Attachment {
 }
 
 export class AttachmentMSTIssue extends Attachment {
-    constructor(private symbol: string, private maxSupply: number, private precision: number, private secondaryIssueThreshold: number, private issuer: string, private address: string, private description: string, version = ATTACHMENT_VERSION.DEFAULT) {
+    constructor(public symbol: string, public maxSupply: number, public precision: number, public secondaryIssueThreshold: number, public issuer: string, public address: string, public description: string, version = ATTACHMENT_VERSION.DEFAULT) {
         super(ATTACHMENT_TYPE.MST, version)
     }
     toBuffer() {
@@ -258,7 +257,7 @@ export class AttachmentMSTIssue extends Attachment {
 }
 
 export class AttachmentMSTTransfer extends Attachment {
-    constructor(private symbol: string, private quantity: number, version = ATTACHMENT_VERSION.DEFAULT) {
+    constructor(public symbol: string, public quantity: number, version = ATTACHMENT_VERSION.DEFAULT) {
         super(ATTACHMENT_TYPE.MST, version)
     }
     toBuffer() {

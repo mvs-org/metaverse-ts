@@ -1,10 +1,4 @@
-import { toUInt8, toVarStr } from '../encoder/encoder'
 const OPS = require('metaverse-ops')
-const base58check: {
-    encode: (buffer: Buffer, version: string) => Buffer,
-    decode: (address: string) => { data: Buffer, prefix: Buffer },
-    // tslint:disable-next-line: no-unsafe-any
-} = require('base58check')
 const pushdata = require('pushdata-bitcoin')
 
 let reverseOps: any = {}
@@ -13,12 +7,14 @@ for (let op in OPS) {
     reverseOps[code] = op
 }
 
-export type ScriptType = 'P2PKH' | 'P2SH' | 'CUSTROM'
+// export * from './script.attenuation'
+// export * from './script.p2pkh'
+
+export type ScriptType = 'P2PKH' | 'P2SH' | 'CUSTOM' | 'ATTENUATION'
 
 export interface IScript {
     scriptType: ScriptType
 }
-
 
 function fullnodeFormat(script: string) {
     let level = 0
@@ -40,6 +36,10 @@ export abstract class Script implements IScript {
     constructor(scriptType: ScriptType) {
         this.scriptType = scriptType
     }
+    toASM() {
+        return Script.toString(this.toBuffer())
+    }
+
     toBuffer() {
         return Buffer.from('')
     }
@@ -138,24 +138,5 @@ export abstract class Script implements IScript {
             }
         })
         return buffer
-    }
-}
-
-export class ScriptP2PKH extends Script {
-    address: string
-
-    constructor(address: string) {
-        super('P2PKH')
-        this.address = address
-    }
-
-    toBuffer() {
-        return Buffer.concat([
-            toUInt8(OPS.OP_DUP),
-            toUInt8(OPS.OP_HASH160),
-            toVarStr(base58check.decode(this.address).data.toString('hex'), 'hex'),
-            toUInt8(OPS.OP_EQUALVERIFY),
-            toUInt8(OPS.OP_CHECKSIG),
-        ])
     }
 }
