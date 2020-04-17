@@ -15,6 +15,7 @@ export interface IEncodable {
 
 export function toUInt32LE(number: number): Buffer {
     const buffer = Buffer.alloc(8)
+    if(number<0) number += 0xffffffff+1
     return buffer.slice(0, buffer.writeUInt32LE(number, 0))
 }
 

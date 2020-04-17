@@ -17,7 +17,7 @@ export enum ATTACHMENT_TYPE {
     AVATAR = 4,
     CERTIFICATE = 5,
     MIT = 6,
-    COINSTAKE = 4294967295,
+    COINSTAKE = -1,
 }
 
 export enum ATTACHMENT_VERSION {
@@ -199,8 +199,12 @@ export abstract class Attachment implements IAttachment {
                             readInt64LE(bufferstate),
                         )
                 }
+                break
+            case ATTACHMENT_TYPE.COINSTAKE:
+                attachment = new AttachmentCoinstake()
+                break
         }
-        if (attachment === undefined) throw Error('Unsupported attachment type')
+        if (attachment === undefined) throw Error('Unsupported attachment type ' + type)
         if (did !== undefined) {
             attachment.setDid(did.from_did, did.to_did)
         }
@@ -314,7 +318,7 @@ export class AttachmentAvatarRegister extends Attachment {
 export abstract class AttachmentCertificate extends Attachment {
     constructor(private symbol: string, private owner: string, private address: string, private certType: CERTIFICATE_TYPE, private status: CERTIFICATE_STATUS, private content?: string) {
         super(ATTACHMENT_TYPE.CERTIFICATE)
-        if(status < CERTIFICATE_STATUS.DEFAULT || status > CERTIFICATE_STATUS.AUTOISSUE){
+        if (status < CERTIFICATE_STATUS.DEFAULT || status > CERTIFICATE_STATUS.AUTOISSUE) {
             throw Error('Unsupported certificate status ' + status)
         }
     }
