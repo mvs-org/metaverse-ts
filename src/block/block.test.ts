@@ -44,19 +44,19 @@ describe('Block', () => {
     describe('hash', () => {
       it('pow block #2200000', () => {      
         expect(Block.decode(powBlockString).getHash()).to.equal('2c58a72a39649afd33debe893bb4fdfd886e2f2d7d0d109edf73786ac5a03bd8')
+        expect(Block.decode(powBlockString).getHash('buffer').toString('hex')).to.equal('2c58a72a39649afd33debe893bb4fdfd886e2f2d7d0d109edf73786ac5a03bd8')
       })
       it('pos block #3588504', () => {      
-        expect(Block.decode(posBlockString).getHash()).to.equal('b7766b58e183c59662156392fa7e49d8c4465adf690fbf7d5ee22c41d5839b56')
+        expect(Block.decode(posBlockString).getHash('buffer').toString('hex')).to.equal('b7766b58e183c59662156392fa7e49d8c4465adf690fbf7d5ee22c41d5839b56')
       })
     })
-    
 
     describe('serialize', () => {
       it('pow block #2200000', () => {      
         expect(Block.decode(powBlockString).toBuffer().toString('hex')).to.equal(powBlockString)
       })
       it('pos block #3588504', () => {      
-        expect(Block.decode(posBlockString).toBuffer().toString('hex')).to.equal(posBlockString)
+        expect(Block.decode(posBlockString).toString()).to.equal(posBlockString)
       })
     })
 
@@ -64,6 +64,7 @@ describe('Block', () => {
     describe('deserialize', () => {
       it('pow block #2200000', () => {      
         expect(Block.decode(powBlockString).toJSON()).to.deep.equal(powBlockObject)
+        expect(Block.decode(Buffer.from(powBlockString, 'hex')).toJSON()).to.deep.equal(powBlockObject)
       })
       it('pos block #3588504 blocksig', () => {      
         expect(Block.decode(posBlockString).toJSON().blocksig).to.equal('a3ce585a2d547e2f7597147be630f5eab1583517d411a956e5976f603374666c7dc57ab00571ad146c4839d603b2670f2ebdd46c7c81f42f6f33ea6ce47f526a')

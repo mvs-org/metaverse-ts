@@ -1,44 +1,86 @@
 import { expect } from 'chai'
-import { OutputETPTransfer, Output } from './output'
-import { AttachmentETPTransfer } from '../attachment/attachment'
+import { OutputETPTransfer, Output, OutputMSTTransfer, OutputMessage } from './output'
+import { AttachmentETPTransfer, AttachmentMSTTransfer } from '../attachment/attachment'
 
 describe('Output', () => {
 
-  describe('Decode', () => {
-    it('from buffer', () => {
-      expect(Output.fromBuffer(Buffer.from('00e1f505000000001a1976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac0100000000000000', 'hex')).toJSON()).deep.equal({
-          attachment: {
-            type: 0,
-            version: 1,
-          },
-          script: "[ 76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac ]",
-          value: 100000000,
-        })
+  describe('Message', () => {
+    const messageOutput = new OutputMessage('some message', 'MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve')
+    const serialized = '00000000000000001976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac01000000030000000c736f6d65206d657373616765'
+    const object = {
+      value: 0,
+      script: 'OP_DUP OP_HASH160 [ 61fde3bd4e6955c99b16de2d71e2a369888a1c0b ] OP_EQUALVERIFY OP_CHECKSIG',
+      attachment: {
+        type: 3,
+        version: 1,
+        data: 'some message',
+      },
+    }
+    it('encode', ()=>{
+      expect(messageOutput.toString()).deep.equal(serialized)
+    })
+    it('decode', ()=>{
+      expect(Output.fromBuffer(Buffer.from(serialized, 'hex')).toJSON()).deep.equal(object)
     })
   })
 
-  describe('Encode', () => {
-    const output = new OutputETPTransfer('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve', 100000000)
-    const outputBufferScript = new Output(100000000, new AttachmentETPTransfer(), Buffer.from('76a914e7da370944c15306b3809580110b0a6c653ac5a988ac', 'hex'))
-
-    it('encode to buffer', () => {
-      expect(output.toBuffer().toString('hex')).equal('00e1f505000000001976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac0100000000000000')
+  describe('MST transfer', () => {
+    const mstOutput = new OutputMSTTransfer('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve', 'MVS.HUG', 2)
+    const mstOutputObject = {
+      value: 0,
+      script: 'OP_DUP OP_HASH160 [ 61fde3bd4e6955c99b16de2d71e2a369888a1c0b ] OP_EQUALVERIFY OP_CHECKSIG',
+      attachment: {
+        symbol: 'MVS.HUG',
+        quantity: 2,
+        type: 2,
+        version: 1,
+      },
+    }
+    const mstOutputString = '00000000000000001976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac010000000200000002000000074d56532e4855470200000000000000'
+    it('decode', () => {
+      expect(Output.fromBuffer(Buffer.from(mstOutputString, 'hex')).toJSON()).deep.equal(mstOutputObject)
     })
-
-    it('encode to JSON', () => {
-      expect(outputBufferScript.toJSON()).to.deep.equal({
-        "attachment": {
-          "type": 0,
-          "version": 1,
-        },
-        "script": "OP_DUP OP_HASH160 [ e7da370944c15306b3809580110b0a6c653ac5a9 ] OP_EQUALVERIFY OP_CHECKSIG",
-        "value": 100000000,
+    describe('encode', () => {
+      it('encode to buffer', () => {
+        expect(mstOutput.toBuffer().toString('hex')).equal(mstOutputString)
+      })
+      it('encode to JSON', () => {
+        expect(mstOutput.toJSON()).to.deep.equal(mstOutputObject)
+      })
+      it('output with script buffer', () => {
+        const output = new Output(mstOutput.value, new AttachmentMSTTransfer('MVS.HUG', 2), Buffer.from('76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac', 'hex'))
+        expect(mstOutput.toString()).equal(output.toString())
+        expect(output.toBuffer().toString('hex')).equal(mstOutputString)
       })
     })
-    it('output with script buffer', () => {
-      expect(outputBufferScript.toString()).equal('00e1f505000000001976a914e7da370944c15306b3809580110b0a6c653ac5a988ac0100000000000000')
-      expect(outputBufferScript.toBuffer().toString('hex')).equal('00e1f505000000001976a914e7da370944c15306b3809580110b0a6c653ac5a988ac0100000000000000')
-    })
   })
 
+  describe('ETP transfer', () => {
+    const etpOutput = new OutputETPTransfer('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve', 100000000)
+    const etpOutputObject = {
+      value: 100000000,
+      script: 'OP_DUP OP_HASH160 [ 61fde3bd4e6955c99b16de2d71e2a369888a1c0b ] OP_EQUALVERIFY OP_CHECKSIG',
+      attachment: {
+        type: 0,
+        version: 1,
+      },
+    }
+    const etpOutputString = '00e1f505000000001976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac0100000000000000'
+    it('decode', () => {
+      expect(Output.fromBuffer(Buffer.from(etpOutputString, 'hex')).toJSON()).deep.equal(etpOutputObject)
+    })
+    describe('encode', () => {
+      it('encode to buffer', () => {
+        expect(etpOutput.toBuffer().toString('hex')).equal(etpOutputString)
+      })
+      it('encode to JSON', () => {
+        expect(etpOutput.toJSON()).to.deep.equal(etpOutputObject)
+      })
+      it('output with script buffer', () => {
+        const output = new Output(etpOutput.value, new AttachmentETPTransfer(), Buffer.from('76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac', 'hex'))
+        expect(etpOutput.toString()).equal(output.toString())
+        expect(output.toBuffer().toString('hex')).equal(etpOutputString)
+      })
+    })
+  })
 })
