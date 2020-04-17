@@ -204,6 +204,7 @@ export abstract class Attachment implements IAttachment {
         if (did !== undefined) {
             attachment.setDid(did.from_did, did.to_did)
         }
+        attachment.version = version
         return attachment
     }
 }
