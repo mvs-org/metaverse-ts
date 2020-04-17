@@ -1,6 +1,6 @@
 import { Output, IOutput } from '../output/output'
 import { IInput, Input } from '../input/input'
-import { IEncodable, toUInt32LE, hash256FromBuffer, toVarInt, readVarInt } from '../encoder/encoder'
+import { IEncodable, toUInt32LE, hash256FromBuffer, toVarInt, readVarInt, BufferState } from '../encoder/encoder'
 import { Signature } from '../signature/signature'
 import { BIP32Interface } from 'bitcoinjs-lib'
 
@@ -14,8 +14,8 @@ export class Transaction implements IEncodable {
 
     constructor(
         public version = 4,
-        public inputs: IInput[] = [],
-        public outputs: IOutput[] = [],
+        public inputs: Input[] = [],
+        public outputs: Output[] = [],
         public lock_time: number = 0,
     ) { }
 
@@ -86,7 +86,7 @@ export class Transaction implements IEncodable {
         return Buffer.concat(this.outputs.map(output => output.toBuffer()))
     }
 
-    toJSON() {
+    toJSON(): ITransaction {
         return {
             version: this.version,
             inputs: this.inputs.map(input => input.toJSON()),
@@ -99,25 +99,25 @@ export class Transaction implements IEncodable {
         return toUInt32LE(this.lock_time)
     }
 
-    static decode(data: Buffer | string) {
+    static decode(data: Buffer | string | BufferState) {
         if (typeof data === 'string') {
-            data = Buffer.from(data, 'hex')
+            data = { buffer: Buffer.from(data, 'hex'), offset: 0 }
+        } else if (Buffer.isBuffer(data)) {
+            data = { buffer: data, offset: 0 }
         }
-        let offset = 0
         const tx = new Transaction()
-        const bufferstate = { buffer: data, offset }
-        tx.version = Transaction.decodeVersion(bufferstate)
-        const numberOfInputs = readVarInt(bufferstate).number
+        tx.version = Transaction.decodeVersion(data)
+        const numberOfInputs = readVarInt(data).number
         for (let i = 0; i < numberOfInputs; i++) {
-            tx.inputs.push(Input.decode(bufferstate))
+            tx.inputs.push(Input.decode(data))
         }
 
-        const numberOfOutputs = readVarInt(bufferstate).number
+        const numberOfOutputs = readVarInt(data).number
         for (let i = 0; i < numberOfOutputs; i++) {
-            tx.outputs.push(Output.decode(bufferstate))
+            tx.outputs.push(Output.decode(data))
         }
 
-        tx.lock_time = Transaction.decodeLocktime(bufferstate)
+        tx.lock_time = Transaction.decodeLocktime(data)
         return tx
     }
 
