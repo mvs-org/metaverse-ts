@@ -14,6 +14,7 @@ import {
 } from '..'
 
 export interface IOutput {
+    address?: string|null
     value: number
     script: string
     attachment: object
@@ -36,10 +37,13 @@ export class Output implements IEncodable {
         }
     }
 
-    toJSON(): IOutput {
+    toJSON(network?: string): IOutput {
+
+        const script = Script.toString(this.script)
         return {
+            ...(network && { address: Script.getAddressFromScript(script, network)}),
             value: this.value,
-            script: Script.toString(this.script),
+            script,
             attachment: this.attachment.toJSON(),
         }
     }

@@ -1,6 +1,6 @@
 {
   "name": "metaverse-ts",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "description": "Metaverse Typescript Library",
   "main": "lib/index.js",
   "directories": {

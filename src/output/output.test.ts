@@ -58,6 +58,7 @@ describe('Output', () => {
   describe('ETP transfer', () => {
     const etpOutput = new OutputETPTransfer('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve', 100000000)
     const etpOutputObject = {
+      address: 'MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve',
       value: 100000000,
       script: 'OP_DUP OP_HASH160 [ 61fde3bd4e6955c99b16de2d71e2a369888a1c0b ] OP_EQUALVERIFY OP_CHECKSIG',
       attachment: {
@@ -67,14 +68,14 @@ describe('Output', () => {
     }
     const etpOutputString = '00e1f505000000001976a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac0100000000000000'
     it('decode', () => {
-      expect(Output.fromBuffer(Buffer.from(etpOutputString, 'hex')).toJSON()).deep.equal(etpOutputObject)
+      expect(Output.fromBuffer(Buffer.from(etpOutputString, 'hex')).toJSON('mainnet')).deep.equal(etpOutputObject)
     })
     describe('encode', () => {
       it('encode to buffer', () => {
         expect(etpOutput.toBuffer().toString('hex')).equal(etpOutputString)
       })
       it('encode to JSON', () => {
-        expect(etpOutput.toJSON()).to.deep.equal(etpOutputObject)
+        expect(etpOutput.toJSON('mainnet')).to.deep.equal(etpOutputObject)
       })
       it('output with script buffer', () => {
         const output = new Output(etpOutput.value, new AttachmentETPTransfer(), Buffer.from('76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac', 'hex'))

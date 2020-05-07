@@ -87,12 +87,12 @@ export class Transaction implements IEncodable {
         return Buffer.concat(this.outputs.map(output => output.toBuffer()))
     }
 
-    toJSON(): ITransaction {
+    toJSON(network?: string): ITransaction {
         return {
             txid: this.getId().toString(),
             version: this.version,
             inputs: this.inputs.map(input => input.toJSON()),
-            outputs: this.outputs.map(output => output.toJSON()),
+            outputs: this.outputs.map(output => output.toJSON(network)),
             lock_time: this.lock_time,
         }
     }

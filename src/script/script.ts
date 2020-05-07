@@ -3,7 +3,7 @@ import { getNetwork } from '../network/network'
 const OPS = require('metaverse-ops')
 const pushdata = require('pushdata-bitcoin')
 const base58check: {
-    encode: (buffer: Buffer, version: string) => Buffer,
+    encode: (buffer: Buffer, version: string) => string,
     decode: (address: string) => { data: Buffer, prefix: Buffer },
     // tslint:disable-next-line: no-unsafe-any
 } = require('base58check')

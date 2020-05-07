@@ -50,11 +50,11 @@ export class Block implements IEncodable {
         return format === 'buffer' ? buffer : buffer.toString('hex')
     }
 
-    toJSON(): IBlock {
+    toJSON(network?: string): IBlock {
         return {
             hash: this.getHash().toString('hex'),
             ...this.header.toJSON(),
-            transactions: this.transactions.map(tx=>tx.toJSON()),
+            transactions: this.transactions.map(tx=>tx.toJSON(network)),
             ... ( this.blocksig && { blocksig: this.blocksig }),
         }
     }
