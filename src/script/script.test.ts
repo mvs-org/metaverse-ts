@@ -40,5 +40,17 @@ describe('Script', () => {
       expect(new ScriptP2PKH('MGqHvbaH9wzdr6oUDFz4S1HptjoKQcjRve').toBuffer().toString('hex')).equal('76a91461fde3bd4e6955c99b16de2d71e2a369888a1c0b88ac')
     })
   })
+  
+  describe('Addresses', ()=>{
+    it('get address from coinbase script', ()=>{
+      expect(Script.getAddressFromScript('[ dc0138 ]', 'mainnet')).to.equal(null)
+    })
+    it('get address from mainnet p2pkh script', ()=>{
+      expect(Script.getAddressFromScript('dup hash160 [ d69df64df26a19f14cc465e6ca41ed7670180884 ] equalverify checksig', 'mainnet')).to.equal('MTTx4tAH5xJVZHD7WhJKr9qQA83H1WUzWc')
+    })
+    it('get address from testnet p2pkh script', ()=>{
+      expect(Script.getAddressFromScript('dup hash160 [ d69df64df26a19f14cc465e6ca41ed7670180884 ] equalverify checksig', 'testnet')).to.equal('tSVPtF7TkqyxXewnPzwsBonycxsuiwnNiQ')
+    })
+  })
 
 })

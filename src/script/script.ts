@@ -1,5 +1,12 @@
+import { getNetwork } from '../network/network'
+
 const OPS = require('metaverse-ops')
 const pushdata = require('pushdata-bitcoin')
+const base58check: {
+    encode: (buffer: Buffer, version: string) => Buffer,
+    decode: (address: string) => { data: Buffer, prefix: Buffer },
+    // tslint:disable-next-line: no-unsafe-any
+} = require('base58check')
 
 let reverseOps: any = {}
 for (let op in OPS) {
@@ -31,6 +38,8 @@ function fullnodeFormat(script: string) {
     return script
 }
 
+
+
 export abstract class Script implements IScript {
     scriptType: ScriptType
     constructor(scriptType: ScriptType) {
@@ -46,6 +55,11 @@ export abstract class Script implements IScript {
 
     static fromFullnode(script: string) {
         return Script.toBuffer(fullnodeFormat(script))
+    }
+
+    static getAddressFromScript(script: string, network: string){
+        const result = /\[ (.+) \] (?:op_equalverify|equalverify) (?:op_checksig|checksig)/i.exec(script)
+        return result ? base58check.encode(Buffer.from(result[1], 'hex'), Buffer.from([getNetwork(network).pubKeyHash]).toString('hex')) : null
     }
 
     static splitBuffer = function (buffer: Buffer) {
