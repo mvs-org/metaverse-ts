@@ -14,6 +14,7 @@ describe('Block', () => {
       "timestamp": 1557259171,
       "transactions": [
         {
+          txid: '031506649b9b36ead7d4709da3bf3e85f30a122cc71ed4aae1c5cfd68aac0e09',
           "inputs": [
             {
               "prevOutId": "0000000000000000000000000000000000000000000000000000000000000000",

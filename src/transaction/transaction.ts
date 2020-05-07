@@ -5,6 +5,7 @@ import { Signature } from '../signature/signature'
 import { BIP32Interface } from 'bitcoinjs-lib'
 
 export interface ITransaction {
+    txid: string,
     version: number
     inputs: IInput[]
     outputs: IOutput[]
@@ -88,6 +89,7 @@ export class Transaction implements IEncodable {
 
     toJSON(): ITransaction {
         return {
+            txid: this.getId().toString(),
             version: this.version,
             inputs: this.inputs.map(input => input.toJSON()),
             outputs: this.outputs.map(output => output.toJSON()),
