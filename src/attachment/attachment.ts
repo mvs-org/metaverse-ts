@@ -44,6 +44,7 @@ export enum CERTIFICATE_TYPE {
     ISSUE = 1,
     DOMAIN = 2,
     NAMING = 3,
+    WITNESS = 5,
     MINING = 0x60000000 + 4,
 }
 
@@ -133,6 +134,9 @@ export abstract class Attachment implements IEncodable {
                     case CERTIFICATE_TYPE.NAMING:
                         attachment = new AttachmentNamingCertificate(certSymbol, certOwner, certAddress, certStatus)
                         break
+                    case CERTIFICATE_TYPE.WITNESS:
+                        attachment = new AttachmentWitnessCertificate(certSymbol, certOwner, certAddress, certStatus)
+                        break
                     case CERTIFICATE_TYPE.MINING:
                         const certContent = readString(bufferstate).toString()
                         attachment = new AttachmentMiningCertificate(certSymbol, certOwner, certAddress, certStatus, certContent)
@@ -153,7 +157,7 @@ export abstract class Attachment implements IEncodable {
                 attachment = new AttachmentMITIssue(symbol, address, content)
                 break
             case ATTACHMENT_TYPE.AVATAR:
-                switch (readInt8(bufferstate)) {
+                switch (readUInt32LE(bufferstate)) {
                     case AVATAR_STATUS.REGISTER:
                         attachment = new AttachmentAvatarRegister(
                             readString(bufferstate).toString(),
@@ -351,6 +355,16 @@ export class AttachmentIssueCertificate extends AttachmentCertificate {
         return super.toBuffer()
     }
 }
+
+export class AttachmentWitnessCertificate extends AttachmentCertificate {
+    constructor(symbol: string, owner: string, address: string, status: CERTIFICATE_STATUS) {
+        super(symbol, owner, address, CERTIFICATE_TYPE.WITNESS, status)
+    }
+    toBuffer() {
+        return super.toBuffer()
+    }
+}
+
 
 export class AttachmentNamingCertificate extends AttachmentCertificate {
     constructor(symbol: string, owner: string, address: string, status: CERTIFICATE_STATUS) {
