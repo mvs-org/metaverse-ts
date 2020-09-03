@@ -157,7 +157,8 @@ export abstract class Attachment implements IEncodable {
                 attachment = new AttachmentMITIssue(symbol, address, content)
                 break
             case ATTACHMENT_TYPE.AVATAR:
-                switch (readUInt32LE(bufferstate)) {
+                const status = readInt8(bufferstate)
+                switch (status) {
                     case AVATAR_STATUS.REGISTER:
                         attachment = new AttachmentAvatarRegister(
                             readString(bufferstate).toString(),
@@ -171,7 +172,7 @@ export abstract class Attachment implements IEncodable {
                         )
                         break
                     default:
-                        throw Error('Invalid avatar attachment status')
+                        throw Error('Invalid avatar attachment status ' + status)
                 }
                 break
             case ATTACHMENT_TYPE.MST:
