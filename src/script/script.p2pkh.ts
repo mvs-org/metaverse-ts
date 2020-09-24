@@ -24,4 +24,19 @@ export class ScriptP2PKH extends Script {
             toUInt8(OPS.OP_CHECKSIG),
         ])
     }
+
+    static getPubkey(script: string): Buffer {
+        if (!this.isP2PKH(this.fromFullnode(script))) {
+            throw Error('illegal script type')
+        }
+        return this.fromFullnode(script).slice(3, 23)
+    }
+
+    static isP2PKH(script: Buffer) {
+        return script.length === 25
+            && script[0] === OPS.OP_DUP
+            && script[1] === OPS.OP_HASH160
+            && script[23] === OPS.OP_EQUALVERIFY
+            && script[24] === OPS.OP_CHECKSIG
+    }
 }

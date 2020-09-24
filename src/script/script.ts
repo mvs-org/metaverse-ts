@@ -63,7 +63,7 @@ export abstract class Script implements IScript {
     }
 
     static splitBuffer = function (buffer: Buffer) {
-        let chunks: Buffer[] = []
+        let chunks: Array<Buffer|string> = []
         let i = 0
 
         while (i < buffer.length) {
