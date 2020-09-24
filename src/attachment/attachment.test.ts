@@ -340,7 +340,7 @@ describe('Attachment', () => {
         expect(attachment.toBuffer().toString('hex')).equal('01000000020000000100000005534d494c45640000000000000000000000096164656c616368656e224d4d5631314d59483772763678377a536e4553557a597262466945415044653356430e747279207468697320736d696c65')
       })
       it('transform to json', () => {
-        expect(attachment.toJSON()).to.deep.equal({ type: 3, version: 1, ...smile })
+        expect(attachment.toJSON()).to.deep.equal({ ...smile })
       })
       it('decode from buffer', () => {
         expect(Attachment.fromBuffer(Buffer.from('01000000020000000100000005534d494c45640000000000000000000000096164656c616368656e224d4d5631314d59483772763678377a536e4553557a597262466945415044653356430e747279207468697320736d696c65', 'hex'))).to.deep.equal(smile)
