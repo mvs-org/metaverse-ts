@@ -1,14 +1,13 @@
 import { Script } from '../script'
 import { Input } from '../input/input'
 import { OutputETPTransfer, OutputMSTTransfer } from '../output/output'
-import { ScriptP2PKH } from '../script'
 import { SIGHASH_ANYONECANPAY, SIGHASH_SINGLE } from '../signature/signature'
 import { Transaction } from '../transaction/transaction'
 import { BIP32Interface } from 'bitcoinjs-lib'
 
 export class Order {
 
-    private tx: Transaction
+    tx: Transaction
 
     constructor(bid_utxo_txid: string, bid_utxo_index: number, receive_address: string, ask_asset: string, ask_quantity: number) {
         this.tx = new Transaction(
@@ -29,7 +28,7 @@ export class Order {
             throw Error('Illegal number of inputs')
         }
         const signature = this.tx.sign(0, node, bid_prev_out_script, sighash)
-        this.tx.inputs[0].script = Script.fromChunks([signature, ScriptP2PKH.getPubkey(bid_prev_out_script)])
+        this.tx.inputs[0].script = Script.fromChunks([signature, node.publicKey])
         return this
     }
 
