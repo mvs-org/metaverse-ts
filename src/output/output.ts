@@ -12,6 +12,7 @@ import {
     toVarInt,
     IEncodable,
 } from '..'
+import { AttachmentMITTransfer } from '../attachment/attachment'
 
 export interface IOutput {
     address?: string|null
@@ -96,5 +97,11 @@ export class OutputMSTTransfer extends Output {
 export class OutputMSTIssue extends Output {
     constructor(address: string, issuer: string, symbol: string, maxSupply: number, precision = 0, description: string, etpValue: number, secondaryIssueThreshold: number) {
         super(etpValue, new AttachmentMSTIssue(symbol, maxSupply, precision, secondaryIssueThreshold, issuer, address, description), new ScriptP2PKH(address))
+    }
+}
+
+export class OutputMITTransfer extends Output {
+    constructor(address: string, symbol: string, value = 0) {
+        super(value, new AttachmentMITTransfer(symbol, address), new ScriptP2PKH(address))
     }
 }
